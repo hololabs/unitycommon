@@ -1,0 +1,5 @@
+
+# Don't commit metadata for the submodule.
+
+*.meta
+*.META
