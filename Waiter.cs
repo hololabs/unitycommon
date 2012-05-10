@@ -12,42 +12,33 @@ using Random = UnityEngine.Random;
 
 public class Waiter : MonoBehaviour {
 
-	internal struct Task
-	{
-		readonly Func<float, bool> condition;
-		readonly Action<float> onTick;
-
-		internal float timeWaited;
-	}
-
 	Queue<Task> taskQueue = new Queue<Task>();
-	Task currentTask;
 
-	//TODO: do first, then check condition
 	void Update()
 	{
-		if(currentTask.condition(currentTask.timeWaited))
+		Task task = taskQueue.Peek();
+		task.timeWaited += Time.deltaTime;
+		task.onTick(task.timeWaited);
+
+		if(task.condition(task.timeWaited))
 		{
-			if(taskQueue.Count > 0)
-				currentTask = taskQueue.Dequeue();
+			if(taskQueue.Count > 1)
+			{
+				var t = taskQueue.Dequeue();
+				Waiters.taskCache.Return(t);
+			}
 			else
 				Destroy(this);
-		}
-		else
-		{
-			currentTask.timeWaited += Time.deltaTime;
-			currentTask.onTick(currentTask.timeWaited);
 		}
 
 	}
 
 	public Waiter Then(Action action)
 	{
-		Task t = new Task()
-		{
-			condition = _ => return true,
-			onTick = _ => action()
-		};
+		Task t = Waiters.taskCache.Take();
+		t.timeWaited = 0;
+		t.condition = _ => { return true; };
+		t.onTick = _ => action();
 		
 		taskQueue.Enqueue(t);
 
@@ -56,24 +47,22 @@ public class Waiter : MonoBehaviour {
 
 	public Waiter ThenDoUntil(Func<float, bool> cond, Action<float> action)
 	{
-		Task t = new Task()
-		{
-			condition = cond,
-			onTick = action
-		};
+		Task t = Waiters.taskCache.Take();
+		t.timeWaited = 0;
+		t.condition = cond;
+		t.onTick = action;
 		
 		taskQueue.Enqueue(t);
 
 		return this;
 	}
 
-	public Waiter ThenWait(float seconds)
+	public Waiter ThenWait(float durationSeconds)
 	{
-		Task t = new Task()
-		{
-			condition = cond,
-			onTick = () => { }
-		};
+		Task t = Waiters.taskCache.Take();
+		t.timeWaited = 0;
+		t.condition = waited => waited > durationSeconds;
+		t.onTick = _ => { };
 		
 		taskQueue.Enqueue(t);
 
@@ -82,20 +71,21 @@ public class Waiter : MonoBehaviour {
 
 	public Waiter ThenInterpolate(float durationSeconds, Action<float> action)
 	{
-		Task t = new Task()
-		{
-			condition = waited => waited > durationSeconds;
-			onTick = waited => action(waited / durationSeconds);
-		}
+		Task t = Waiters.taskCache.Take();
+		t.timeWaited = 0;
+		t.condition = waited => waited > durationSeconds;
+		t.onTick = waited => action(waited / durationSeconds);
 
 		taskQueue.Enqueue(t);
 
 		return this;
 	}
+
 }
 
 public static class Waiters
 {
+	internal static readonly Pool<Task> taskCache = new Pool<Task>();
 
 	private static GameObject globalWaiter;
 	public static GameObject GlobalWaiter
@@ -126,4 +116,13 @@ public static class Waiters
 		return w.ThenInterpolate(durationSeconds, interpolatorAction);
 	}
 
+}
+
+internal class Task
+{
+
+	internal Func<float, bool> condition;
+	internal Action<float> onTick;
+
+	internal float timeWaited;
 }

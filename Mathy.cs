@@ -1,8 +1,12 @@
 using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 public static class Mathy {
-
 
 	public static float Map(float val, float fromMin, float fromMax, float toMin, float toMax) {
 		//normalize val to 0..1 range
@@ -65,6 +69,13 @@ public static class Mathy {
 	   return (3*a0*tsq+2*a1*t+a2);
 	}
 
+	public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
+	{     
+        T result = val;
+        if (val.CompareTo(max) > 0) result = max;
+        if (val.CompareTo(min) < 0) result = min;
+        return result;
+	}
 
 	/*
 	public static float DirectionalDeltaAngle(float x, float y) {
