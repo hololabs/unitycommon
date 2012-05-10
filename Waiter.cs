@@ -1,50 +1,97 @@
 using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
-//A simplified/less versatile/less generic Unity implementation of Renaud's handy waiters
+//Adapted from Renaud's handy waiters
+
+//TODO: option to use fixed update?
 
 public class Waiter : MonoBehaviour {
 
-	internal System.Func<float, bool> condition;
-	internal System.Action<float> whileWaiting;
-	internal System.Action whenDone;
-	
-	private float timeWaited;
-	
-	
-	//internal bool useFixedUpdate;
-	//Hm. There might be a smarter way to do this so we don't implement/call both Update and FixedUpdate?
+	internal struct Task
+	{
+		readonly Func<float, bool> condition;
+		readonly Action<float> onTick;
 
-	void Update () {
-		//if (useFixedUpdate) return;
-		
-		if (condition(timeWaited))
+		internal float timeWaited;
+	}
+
+	Queue<Task> taskQueue = new Queue<Task>();
+	Task currentTask;
+
+	//TODO: do first, then check condition
+	void Update()
+	{
+		if(currentTask.condition(currentTask.timeWaited))
 		{
-			whenDone();
-			Destroy(this);
+			if(taskQueue.Count > 0)
+				currentTask = taskQueue.Dequeue();
+			else
+				Destroy(this);
 		}
 		else
 		{
-			timeWaited += Time.deltaTime;
-			whileWaiting(timeWaited);	
+			currentTask.timeWaited += Time.deltaTime;
+			currentTask.onTick(currentTask.timeWaited);
 		}
+
 	}
-	
-	/*
-	void FixedUpdate () {
-		if (!useFixedUpdate) return;
-		
-		if (condition(timeWaited))
+
+	public Waiter Then(Action action)
+	{
+		Task t = new Task()
 		{
-			whenDone();
-			Destroy(this);
-		}
-		else
-			timeWaited += Time.deltaTime;
-			whileWaiting(timeWaited);	
-			
+			condition = _ => return true,
+			onTick = _ => action()
+		};
+		
+		taskQueue.Enqueue(t);
+
+		return this;
 	}
-	*/
+
+	public Waiter ThenDoUntil(Func<float, bool> cond, Action<float> action)
+	{
+		Task t = new Task()
+		{
+			condition = cond,
+			onTick = action
+		};
+		
+		taskQueue.Enqueue(t);
+
+		return this;
+	}
+
+	public Waiter ThenWait(float seconds)
+	{
+		Task t = new Task()
+		{
+			condition = cond,
+			onTick = () => { }
+		};
+		
+		taskQueue.Enqueue(t);
+
+		return this;
+	}
+
+	public Waiter ThenInterpolate(float durationSeconds, Action<float> action)
+	{
+		Task t = new Task()
+		{
+			condition = waited => waited > durationSeconds;
+			onTick = waited => action(waited / durationSeconds);
+		}
+
+		taskQueue.Enqueue(t);
+
+		return this;
+	}
 }
 
 public static class Waiters
@@ -60,56 +107,23 @@ public static class Waiters
 		}
 	}
 
-	public static Waiter Wait(float secondsToWait, System.Action whenDone)
+	public static Waiter Wait(float secondsToWait, GameObject attachTo = null)
 	{
-		Waiter w = GlobalWaiter.AddComponent<Waiter>();
-		
-		w.condition = waited => waited > secondsToWait;
-		w.whileWaiting = waited => { };
-		w.whenDone = whenDone;
-
-		return w;
+		Waiter w = (attachTo ?? GlobalWaiter).AddComponent<Waiter>();
+		return w.ThenWait(secondsToWait);
 	}
 
-	public static Waiter Wait(GameObject attachTo, float secondsToWait, System.Action whenDone)
+	public static Waiter DoUntil(Func<float, bool> condition, Action<float> action, GameObject attachTo = null)
 	{
-		Waiter w = attachTo.AddComponent<Waiter>();
-		
-		w.condition = waited => waited > secondsToWait;
-		w.whileWaiting = waited => { };
-		w.whenDone = whenDone;
-		
-		return w;
+		Waiter w = (attachTo ?? GlobalWaiter).AddComponent<Waiter>();
+		return w.ThenDoUntil(condition, action);
 	}
 
 	//interpolatorAction parameter will always go from 0 to 1 (time waited / interpolation duration)
-	public static Waiter Interpolate(GameObject attachTo, float durationSeconds, System.Action<float> interpolatorAction)
+	public static Waiter Interpolate(float durationSeconds, Action<float> interpolatorAction, GameObject attachTo = null)
 	{
-		return Interpolate(attachTo, durationSeconds, interpolatorAction, () => {} );
+		Waiter w = (attachTo ?? GlobalWaiter).AddComponent<Waiter>();
+		return w.ThenInterpolate(durationSeconds, interpolatorAction);
 	}
-	public static Waiter Interpolate(float durationSeconds, System.Action<float> interpolatorAction)
-	{
-		return Interpolate(durationSeconds, interpolatorAction, () => {} );
-	}        
-	public static Waiter Interpolate(GameObject attachTo, float durationSeconds, System.Action<float> interpolatorAction, System.Action whenDone)
-	{
-		Waiter w = attachTo.AddComponent<Waiter>();
-		
-		w.condition = waited => waited > durationSeconds;
-		w.whileWaiting = waited => interpolatorAction(waited / durationSeconds);
-		w.whenDone = whenDone;
 
-		return w;
-	}
-	public static Waiter Interpolate(float durationSeconds, System.Action<float> interpolatorAction, System.Action whenDone)
-	{
-		Waiter w = GlobalWaiter.AddComponent<Waiter>();
-		
-		w.condition = waited => waited > durationSeconds;
-		w.whileWaiting = waited => interpolatorAction(waited / durationSeconds);
-		w.whenDone = whenDone;
-
-		return w;
-	}
-	
 }
