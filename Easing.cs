@@ -1,8 +1,6 @@
 using UnityEngine;
 using System.Collections;
 
-//Shamelessly lifted from Renaud's code. Should talk to him about this...
-
 public static class Easing
 {
 	// Adapted from source : http://www.robertpenner.com/easing/
@@ -30,6 +28,9 @@ public static class Easing
 			case EaseType.Quart: return Power.EaseIn(linearStep, 4);
 			case EaseType.Quint: return Power.EaseIn(linearStep, 5);
 			case EaseType.Circ: return Circ.EaseIn(linearStep);
+			case EaseType.Bounce: return Bounce.EaseIn(linearStep);
+			case EaseType.Back: return Back.EaseIn(linearStep);
+			case EaseType.Elastic: return Elastic.EaseIn(linearStep);
 		}
 		Debug.LogError("Um.");
 		return 0;
@@ -47,6 +48,9 @@ public static class Easing
 			case EaseType.Quart: return Power.EaseOut(linearStep, 4);
 			case EaseType.Quint: return Power.EaseOut(linearStep, 5);
 			case EaseType.Circ: return Circ.EaseOut(linearStep);
+			case EaseType.Bounce: return Bounce.EaseOut(linearStep);
+			case EaseType.Back: return Back.EaseOut(linearStep);
+			case EaseType.Elastic: return Elastic.EaseOut(linearStep);
 		}
 		Debug.LogError("Um.");
 		return 0;
@@ -74,6 +78,11 @@ public static class Easing
 			case EaseType.Quart: return Power.EaseInOut(linearStep, 4);
 			case EaseType.Quint: return Power.EaseInOut(linearStep, 5);
 			case EaseType.Circ: return Circ.EaseInOut(linearStep);
+
+			case EaseType.Bounce: return Bounce.EaseInOut(linearStep);
+			case EaseType.Back: return Back.EaseInOut(linearStep);
+			case EaseType.Elastic: return Elastic.EaseInOut(linearStep);
+
 		}
 		Debug.LogError("Um.");
 		return 0;
@@ -132,6 +141,98 @@ public static class Easing
 			return ((Mathf.Sqrt(1 - (s - 2) * s)) + 1) / 2;
 		}
 	}
+
+	//TODO: sanity check on these
+	static class Bounce
+	{
+		public static float EaseIn(float s)
+		{
+			return 1f - EaseOut(1f - s);
+		}
+		public static float EaseOut(float s)
+		{
+			if (s < (1 / 2.75f))
+			{
+				return (7.5625f * s * s);
+			}
+			else if (s < (2 / 2.75f))
+			{
+				s -= (1.5f / 2.75f);
+				return (7.5625f * s * s + .75f);
+			}
+			else if (s < (2.5 / 2.75))
+			{
+				s -= (2.25f / 2.75f);
+				return (7.5625f * s * s + .9375f);
+			}
+			else
+			{
+				s -= (2.625f / 2.75f);
+				return (7.5625f * s * s + .984375f);
+			}
+		}
+		public static float EaseInOut(float s)
+		{
+			if (s < 0.5f) return EaseIn(s*2) * 0.5f;
+			else return EaseOut(s) * 0.5f + 0.5f;
+		}
+	}
+
+	static class Back
+	{	
+		public static float EaseIn(float s)
+		{
+			return s * s * (2.70158f * s - 1.70158f);
+		}
+
+		public static float EaseOut(float s)
+		{
+			s = s - 1;
+			return (s * s * (2.70158f * s + 1.70158f) + 1);
+		}
+
+		public static float EaseInOut(float s)
+		{
+			s = s * 2f;
+			if (s < 1)
+			{
+				return 1f / 2 * (s * s * (((1.70158f * 1.525f) + 1) * s - (1.70158f * 1.525f)));
+			}
+			s -= 2;
+			return 1f / 2 * ((s) * s * (((1.70158f * 1.525f) + 1) * s + (1.70158f * 1.525f)) + 2);
+		}
+	}
+
+	static class Elastic
+	{
+		public static float EaseIn(float linearStep)
+		{
+			if (linearStep == 0) return 0;
+			if (linearStep == 1) return 1f;
+			
+			return -(Mathf.Pow(2, 10 * (linearStep - 1)) * Mathf.Sin((linearStep - 1.075f) * (2 * Mathf.PI) / 0.3f));
+		}		
+		
+		public static float EaseOut(float linearStep)
+		{
+			if (linearStep == 0) return 0;
+			if (linearStep == 1) return 1f;
+			
+			return Mathf.Pow(2, -10 * linearStep) * Mathf.Sin((linearStep - 0.075f) * (2 * Mathf.PI) / 0.3f) + 1f;
+		}		
+		
+		public static float EaseInOut(float linearStep)
+		{
+			if (linearStep == 0) return 0;
+			if (linearStep == 1) return 1f;
+
+			linearStep *= 2f;
+
+			if (linearStep < 1) return -0.5f * (Mathf.Pow(2, 10 * (linearStep - 1f)) * Mathf.Sin((linearStep - 1.075f) * (2 * Mathf.PI) / 0.3f));
+			return Mathf.Pow(2, -10 * (linearStep - 1f)) * Mathf.Sin((linearStep - 1.075f) * (2 * Mathf.PI) / 0.3f) * 1.5f;
+		}
+	}
+
 }
 
 public enum EaseType
@@ -143,6 +244,9 @@ public enum EaseType
 	Cubic,
 	Quart,
 	Quint,
-	Circ
+	Circ,
+	Bounce,
+	Back,
+	Elastic
 }
 
