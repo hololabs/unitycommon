@@ -120,7 +120,6 @@ public static class Waiters
 
 internal class Task
 {
-
 	internal Func<float, bool> condition;
 	internal Action<float> onTick;
 
