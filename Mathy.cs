@@ -82,15 +82,19 @@ public static class Mathy {
 		return (3*a0*tsq+2*a1*t+a2);
 	}
 
-	/*
-	public static float DirectionalDeltaAngle(float x, float y) {
-		while(x < 0) x += 360f;
-		while(y < 0) y += 360f;
+	public static float DirectionalDeltaAngle(float x, float y)
+	{
+		if(x < 0f)
+			x = ((x % 360f) + 360f) % 360f;
+		if(y < 0f)
+			y = ((y % 360f) + 360f) % 360f;
+
 		float d = y - x;
-		while (d > 360) d -= 360f;
+		if(d > 360f)
+			d = d % 360f;
+		
 		return d;
 	}
-	*/
 
 	/*
 	public static Vector3 CatmullRom(
