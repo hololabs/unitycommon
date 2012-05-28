@@ -1,8 +1,7 @@
-Shader "Common/Vertex Coloured Surf Tex"
+Shader "Common/Vertex Coloured Surf"
 {
 	Properties
 	{
-		_MainTex ("Texture", 2D) = "white" {}
 	}
     SubShader
     {
@@ -12,7 +11,6 @@ Shader "Common/Vertex Coloured Surf Tex"
 			struct Input
 			{
 			  float4 color : COLOR;
-			  float2 uv_MainTex;
 			};
 
 	  		sampler2D _MainTex;
@@ -20,7 +18,6 @@ Shader "Common/Vertex Coloured Surf Tex"
 			void surf (Input IN, inout SurfaceOutput o)
 			{	  
 				o.Albedo = IN.color.rgb;
-				o.Albedo *= tex2D (_MainTex, IN.uv_MainTex).rgb * 2;
 			}
 		ENDCG
     }
