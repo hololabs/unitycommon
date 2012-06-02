@@ -80,7 +80,6 @@ public class Waiter : MonoBehaviour {
 
 		return this;
 	}
-
 }
 
 public static class Waiters
@@ -115,7 +114,6 @@ public static class Waiters
 		Waiter w = (attachTo ?? GlobalWaiter).AddComponent<Waiter>();
 		return w.ThenInterpolate(durationSeconds, interpolatorAction);
 	}
-
 }
 
 internal class Task

@@ -12,13 +12,6 @@ public static class Mathy {
 		return Mathf.Sin(Time.time * (1f / period) + offset) * amplitude;
 	}
 
-	public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
-	{
-		if (val.CompareTo(max) > 0) return max;
-		if (val.CompareTo(min) < 0) return min;
-		return val;
-	}
-
 	public static float Map(float val, float fromMin, float fromMax, float toMin, float toMax)
 	{
 		//normalize val to 0..1 range
