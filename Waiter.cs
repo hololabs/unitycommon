@@ -13,6 +13,7 @@ using Random = UnityEngine.Random;
 public class Waiter : MonoBehaviour {
 
 	Queue<Task> taskQueue = new Queue<Task>();
+	Action onDestroy = () => {};
 
 	void Update()
 	{
@@ -30,7 +31,11 @@ public class Waiter : MonoBehaviour {
 			else
 				Destroy(this);
 		}
+	}
 
+	void OnDestroy()
+	{
+		onDestroy();
 	}
 
 	public Waiter Then(Action action)
@@ -77,6 +82,13 @@ public class Waiter : MonoBehaviour {
 		t.onTick = waited => action(waited / durationSeconds);
 
 		taskQueue.Enqueue(t);
+
+		return this;
+	}
+
+	public Waiter OnDestroy(Action action)
+	{
+		onDestroy = action;
 
 		return this;
 	}
