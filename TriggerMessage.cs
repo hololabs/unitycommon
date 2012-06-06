@@ -9,11 +9,26 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(Rigidbody))]
 public class TriggerMessage : MonoBehaviour
 {
-	public event Action<Collider> TriggerAction;
+	public event Action<Collider> TriggerEnterAction;
+	public event Action<Collider> TriggerStayAction;
+	public event Action<Collider> TriggerExitAction;
+
+	void OnTriggerEnter(Collider other)
+	{
+		if(TriggerEnterAction != null)
+			TriggerEnterAction(other);
+	}
 
 	void OnTriggerStay(Collider other)
 	{
-		TriggerAction(other);
+		if(TriggerStayAction != null)
+			TriggerStayAction(other);
+	}
+
+	void OnTriggerExit(Collider other)
+	{
+		if(TriggerExitAction != null)
+			TriggerExitAction(other);
 	}
 
 }
