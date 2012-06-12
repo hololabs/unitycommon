@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 
 using UnityEditor;
 
-public class ReverseWinding : MonoBehaviour
+public class ReverseWinding
 {
 	[MenuItem ("Utility/Reverse winding order")]
 	static void ReverseWindingOrder()
