@@ -11,4 +11,9 @@ public static class Util
 	{
 		return Enum.GetValues(typeof(T)).Length;
 	}
+
+	public static string EnumString(Enum e)
+	{
+		return Enum.GetName(e.GetType(), e);
+	}
 }
