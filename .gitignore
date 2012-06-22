@@ -1,4 +1,4 @@
-﻿# Sublime/Ctags-generated
+# Sublime/Ctags-generated
 
 *.sublime-project
 *.sublime-workspace
@@ -11,9 +11,5 @@
 ehthumbs.db
 Icon?
 Thumbs.db
-
-# Ignore metafiles for this submodule.
-
-*.meta
 
 # Additional ignores
