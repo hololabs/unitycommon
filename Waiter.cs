@@ -12,6 +12,9 @@ using Random = UnityEngine.Random;
 
 public class Waiter : MonoBehaviour {
 
+	//A public friendly name or synopsis so we can look at it in the inspector.
+	public string description = "";
+
 	Queue<Task> taskQueue = new Queue<Task>();
 	Action onDestroy = () => {};
 
@@ -89,6 +92,13 @@ public class Waiter : MonoBehaviour {
 	public Waiter OnDestroy(Action action)
 	{
 		onDestroy = action;
+
+		return this;
+	}
+
+	public Waiter Description(string description)
+	{
+		this.description = description;
 
 		return this;
 	}
