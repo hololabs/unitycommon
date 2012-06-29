@@ -10,7 +10,7 @@ using UnityEditor;
 
 public class ReverseWinding
 {
-	[MenuItem ("Utility/Reverse winding order")]
+	[MenuItem ("Utility/Reverse winding order", false, 2)]
 	static void ReverseWindingOrder()
 	{
 		MeshFilter mf = Selection.activeTransform.GetComponent<MeshFilter>();
