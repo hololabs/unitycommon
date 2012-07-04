@@ -9,6 +9,8 @@ public static class Mathy {
 
 	public static float Sin(float amplitude, float period, float offset)
 	{
+		if(period == 0)
+			period = 0.001f;
 		return Mathf.Sin(Time.time * (1f / period) + offset) * amplitude;
 	}
 
