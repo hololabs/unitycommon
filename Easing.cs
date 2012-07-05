@@ -25,8 +25,8 @@ public static class Easing
 			case EaseType.Sine: return Sine.EaseIn(linearStep);
 			case EaseType.Quad: return Power.EaseIn(linearStep, 2);
 			case EaseType.Cubic: return Power.EaseIn(linearStep, 3);
-			case EaseType.Quart: return Power.EaseIn(linearStep, 4);
-			case EaseType.Quint: return Power.EaseIn(linearStep, 5);
+			case EaseType.Quartic: return Power.EaseIn(linearStep, 4);
+			case EaseType.Quintic: return Power.EaseIn(linearStep, 5);
 			case EaseType.Circ: return Circ.EaseIn(linearStep);
 			case EaseType.Bounce: return Bounce.EaseIn(linearStep);
 			case EaseType.Back: return Back.EaseIn(linearStep);
@@ -45,8 +45,8 @@ public static class Easing
 			case EaseType.Sine: return Sine.EaseOut(linearStep);
 			case EaseType.Quad: return Power.EaseOut(linearStep, 2);
 			case EaseType.Cubic: return Power.EaseOut(linearStep, 3);
-			case EaseType.Quart: return Power.EaseOut(linearStep, 4);
-			case EaseType.Quint: return Power.EaseOut(linearStep, 5);
+			case EaseType.Quartic: return Power.EaseOut(linearStep, 4);
+			case EaseType.Quintic: return Power.EaseOut(linearStep, 5);
 			case EaseType.Circ: return Circ.EaseOut(linearStep);
 			case EaseType.Bounce: return Bounce.EaseOut(linearStep);
 			case EaseType.Back: return Back.EaseOut(linearStep);
@@ -75,8 +75,8 @@ public static class Easing
 			case EaseType.Sine: return Sine.EaseInOut(linearStep);
 			case EaseType.Quad: return Power.EaseInOut(linearStep, 2);
 			case EaseType.Cubic: return Power.EaseInOut(linearStep, 3);
-			case EaseType.Quart: return Power.EaseInOut(linearStep, 4);
-			case EaseType.Quint: return Power.EaseInOut(linearStep, 5);
+			case EaseType.Quartic: return Power.EaseInOut(linearStep, 4);
+			case EaseType.Quintic: return Power.EaseInOut(linearStep, 5);
 			case EaseType.Circ: return Circ.EaseInOut(linearStep);
 
 			case EaseType.Bounce: return Bounce.EaseInOut(linearStep);
@@ -242,8 +242,8 @@ public enum EaseType
 	Sine,
 	Quad,
 	Cubic,
-	Quart,
-	Quint,
+	Quartic,
+	Quintic,
 	Circ,
 	Bounce,
 	Back,
