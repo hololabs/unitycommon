@@ -1,5 +1,5 @@
 //From http://www.blog.radiator.debacle.us/2013/02/a-smoother-triplanar-shader-for-unity.html
-Shader "Custom/Triplanar World" {
+Shader "Common/Triplanar World" {
   Properties {
 		_Side("Side", 2D) = "white" {}
 		_Top("Top", 2D) = "white" {}
