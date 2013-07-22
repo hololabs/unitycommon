@@ -14,9 +14,11 @@ public class MenuOpenSublimeProject
 	[MenuItem ("File/Open Sublime Project", false, 0)]
 	static void OpenSublimeProject()
 	{
-		if(File.Exists("proj.sublime-project"))
-			Process.Start("proj.sublime-project");
+		var files = Directory.GetFiles(".", "*.sublime-project");
+
+		if(files.Length > 0)
+			Process.Start(files[0]);
 		else
-			Debug.Log("No Sublime Project found!");
+			Debug.LogError("No sublime-project file found!");
 	}
 }
