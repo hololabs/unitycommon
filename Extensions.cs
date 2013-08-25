@@ -17,6 +17,15 @@ public static class Extensions
 		return t[Random.Range(0, t.Count)];
 	}
 
+	// Handy utility function for iteration with index, from
+	// http://stackoverflow.com/questions/521687/c-sharp-foreach-with-index
+	public static void Each<T>(this IEnumerable<T> ie, Action<T, int> action)
+	{
+	    int i = 0;
+	    foreach(var e in ie)
+	    	action(e, i++);
+	}
+
 	public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
 	{
 		if (val.CompareTo(max) > 0) return max;
