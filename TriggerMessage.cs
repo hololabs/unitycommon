@@ -5,30 +5,27 @@ using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
-[RequireComponent(typeof(Collider))]
-[RequireComponent(typeof(Rigidbody))]
 public class TriggerMessage : MonoBehaviour
 {
-	public event Action<Collider> TriggerEnterAction;
-	public event Action<Collider> TriggerStayAction;
-	public event Action<Collider> TriggerExitAction;
+	public event Action<TriggerMessage, Collider> TriggerEnterAction;
+	public event Action<TriggerMessage, Collider> TriggerStayAction;
+	public event Action<TriggerMessage, Collider> TriggerExitAction;
 
 	void OnTriggerEnter(Collider other)
 	{
 		if(TriggerEnterAction != null)
-			TriggerEnterAction(other);
+			TriggerEnterAction(this, other);
 	}
 
 	void OnTriggerStay(Collider other)
 	{
 		if(TriggerStayAction != null)
-			TriggerStayAction(other);
+			TriggerStayAction(this, other);
 	}
 
 	void OnTriggerExit(Collider other)
 	{
 		if(TriggerExitAction != null)
-			TriggerExitAction(other);
+			TriggerExitAction(this, other);
 	}
-
 }
