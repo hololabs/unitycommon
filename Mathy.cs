@@ -5,8 +5,20 @@ using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
-public static class Mathy {
+public static class CurveHelper
+{
+	public static AnimationCurve Gaussian01()
+	{
+		return new AnimationCurve(
+			new Keyframe(0,    0,  0, 0),
+			new Keyframe(0.5f, 1f, 0, 0),
+			new Keyframe(1f,   0,  0, 0)
+		);
+	}
+}
 
+public static class Mathy
+{
 	public static float Sin(float amplitude, float period, float offset)
 	{
 		return Mathf.Sin(Time.time * (1f / period) + offset) * amplitude;
@@ -87,6 +99,12 @@ public static class Mathy {
 			d = d % 360f;
 		
 		return d;
+	}
+
+	public static Vector2 RandomOnUnitCircle()
+	{
+		float rads = Random.Range(0, 2 * Mathf.PI);
+		return new Vector2(Mathf.Sin(rads), Mathf.Cos(rads));
 	}
 
 	/*
