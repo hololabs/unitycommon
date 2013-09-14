@@ -17,22 +17,29 @@ public class Waiter : MonoBehaviour {
 
 	Queue<Task> taskQueue = new Queue<Task>();
 	Action onDestroy = () => {};
-
+	Func<bool> isCancelled = () => false;
+	
 	void Update()
 	{
 		Task task = taskQueue.Peek();
 		task.timeWaited += Time.deltaTime;
-		task.onTick(task.timeWaited);
-
-		if(task.condition(task.timeWaited))
-		{
-			if(taskQueue.Count > 1)
+		if (!isCancelled()) {
+			task.onTick(task.timeWaited);
+	
+			if(task.condition(task.timeWaited))
 			{
-				var t = taskQueue.Dequeue();
-				Waiters.taskCache.Return(t);
+				task.Cleanup();
+				if(taskQueue.Count > 1)
+				{
+					var t = taskQueue.Dequeue();
+					Waiters.taskCache.Return(t);
+				}
+				else
+					Destroy(this);
 			}
-			else
-				Destroy(this);
+		} else {
+			task.Cleanup();
+			Destroy(this);
 		}
 	}
 
@@ -40,13 +47,16 @@ public class Waiter : MonoBehaviour {
 	{
 		onDestroy();
 	}
-
+	public Waiter Cleanup(Action action) {
+		Task t = taskQueue.Peek();
+		t.onCleanup = action;
+		
+		return this;
+	}
 	public Waiter Then(Action action)
 	{
 		Task t = Waiters.taskCache.Take();
-		t.timeWaited = 0;
-		t.condition = _ => { return true; };
-		t.onTick = _ => action();
+		t.Reset(_ => true, _ => action());
 		
 		taskQueue.Enqueue(t);
 
@@ -56,9 +66,7 @@ public class Waiter : MonoBehaviour {
 	public Waiter ThenDoUntil(Func<float, bool> cond, Action<float> action)
 	{
 		Task t = Waiters.taskCache.Take();
-		t.timeWaited = 0;
-		t.condition = cond;
-		t.onTick = action;
+		t.Reset(cond, action);
 		
 		taskQueue.Enqueue(t);
 
@@ -68,9 +76,7 @@ public class Waiter : MonoBehaviour {
 	public Waiter ThenWait(float durationSeconds)
 	{
 		Task t = Waiters.taskCache.Take();
-		t.timeWaited = 0;
-		t.condition = waited => waited > durationSeconds;
-		t.onTick = _ => { };
+		t.Reset(waited => waited > durationSeconds, null);
 		
 		taskQueue.Enqueue(t);
 
@@ -80,9 +86,8 @@ public class Waiter : MonoBehaviour {
 	public Waiter ThenInterpolate(float durationSeconds, Action<float> action)
 	{
 		Task t = Waiters.taskCache.Take();
-		t.timeWaited = 0;
-		t.condition = waited => waited > durationSeconds;
-		t.onTick = waited => action(waited / durationSeconds);
+		t.Reset(waited => waited > durationSeconds,
+				waited => action(waited / durationSeconds));
 
 		taskQueue.Enqueue(t);
 
@@ -95,7 +100,11 @@ public class Waiter : MonoBehaviour {
 
 		return this;
 	}
-
+	public Waiter CancelledWhen(Func<bool> predicate) {
+		isCancelled = predicate;
+		
+		return this;
+	}
 	public Waiter Description(string description)
 	{
 		this.description = description;
@@ -142,6 +151,18 @@ internal class Task
 {
 	internal Func<float, bool> condition;
 	internal Action<float> onTick;
+	internal Action onCleanup;
 
 	internal float timeWaited;
+	
+	internal void Reset(Func<float, bool> condition, Action<float> onTick) {
+		this.timeWaited = 0;
+		this.onCleanup = null;
+		this.condition = condition;
+		this.onTick = onTick ?? (_ => {});
+	}
+	internal void Cleanup() {
+		if (onCleanup != null)
+			onCleanup();
+	}
 }
