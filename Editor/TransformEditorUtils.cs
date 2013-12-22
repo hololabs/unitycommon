@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+﻿// A combination of http://wiki.unity3d.com/index.php/Blender_Camera_Controls
+// and a transform reset helper adapted from NGUI. We need to combine them
+// because we can't have more than one custom editor script for a single type.
+
+using UnityEngine;
 using UnityEditor;
 
-// Combination of http://wiki.unity3d.com/index.php/Blender_Camera_Controls
-// and NGUI's transform reset helper
-
+// Numpad controls:
+//
 // Numpad1 				= Front view
 // Control + Numpad1	= Rear view 
 // Numpad3				= Right view
@@ -21,9 +24,8 @@ using UnityEditor;
 // Numpad0				= Focus selected objects (same as Unity's F key)
 
 [CustomEditor(typeof(Transform)), CanEditMultipleObjects]
-public class NumpadCameraControls : Editor
+public class TransformEditorUtils : Editor
 {
-
 	/// Numpad controls
 	UnityEditor.SceneView sceneView;
 	
@@ -123,26 +125,13 @@ public class NumpadCameraControls : Editor
 
 	public override void OnInspectorGUI ()
 	{
-		EditorGUIUtility.LookLikeControls(15f);
+		EditorGUIUtility.labelWidth = 15f;
 
 		serializedObject.Update();
 
-		bool widgets = false;
-
-		foreach (Object obj in serializedObject.targetObjects)
-		{
-			Transform t = obj as Transform;
-
-			if (t.GetComponent<UIWidget>() != null)
-			{
-				widgets = true;
-				break;
-			}
-		}
-
 		DrawPosition();
-		DrawRotation(widgets);
-		DrawScale(widgets);
+		DrawRotation();
+		DrawScale();
 
 		serializedObject.ApplyModifiedProperties();
 	}
@@ -162,7 +151,7 @@ public class NumpadCameraControls : Editor
 		GUILayout.EndHorizontal();
 	}
 
-	void DrawScale (bool isWidget)
+	void DrawScale ()
 	{
 		GUILayout.BeginHorizontal();
 		{
@@ -170,10 +159,7 @@ public class NumpadCameraControls : Editor
 
 			EditorGUILayout.PropertyField(mScale.FindPropertyRelative("x"));
 			EditorGUILayout.PropertyField(mScale.FindPropertyRelative("y"));
-
-			if (isWidget) GUI.color = new Color(0.7f, 0.7f, 0.7f);
 			EditorGUILayout.PropertyField(mScale.FindPropertyRelative("z"));
-			if (isWidget) GUI.color = Color.white;
 
 			if (reset) mScale.vector3Value = Vector3.one;
 		}
@@ -224,31 +210,14 @@ public class NumpadCameraControls : Editor
 	/// Draw an editable float field.
 	/// </summary>
 	/// <param name="hidden">Whether to replace the value with a dash</param>
-	/// <param name="greyedOut">Whether the value should be greyed out or not</param>
-
-	static bool FloatField (string name, ref float value, bool hidden, bool greyedOut, GUILayoutOption opt)
+	static bool FloatField (string name, ref float value, bool hidden, GUILayoutOption opt)
 	{
 		float newValue = value;
 		GUI.changed = false;
 
 		if (!hidden)
 		{
-			if (greyedOut)
-			{
-				GUI.color = new Color(0.7f, 0.7f, 0.7f);
-				newValue = EditorGUILayout.FloatField(name, newValue, opt);
-				GUI.color = Color.white;
-			}
-			else
-			{
-				newValue = EditorGUILayout.FloatField(name, newValue, opt);
-			}
-		}
-		else if (greyedOut)
-		{
-			GUI.color = new Color(0.7f, 0.7f, 0.7f);
-			float.TryParse(EditorGUILayout.TextField(name, "--", opt), out newValue);
-			GUI.color = Color.white;
+			newValue = EditorGUILayout.FloatField(name, newValue, opt);
 		}
 		else
 		{
@@ -269,7 +238,7 @@ public class NumpadCameraControls : Editor
 
 	static bool Differs (float a, float b) { return Mathf.Abs(a - b) > 0.0001f; }
 
-	void DrawRotation (bool isWidget)
+	void DrawRotation ()
 	{
 		GUILayout.BeginHorizontal();
 		{
@@ -281,9 +250,9 @@ public class NumpadCameraControls : Editor
 
 			GUILayoutOption opt = GUILayout.MinWidth(30f);
 
-			if (FloatField("X", ref visible.x, (changed & Axes.X) != 0, isWidget, opt)) altered |= Axes.X;
-			if (FloatField("Y", ref visible.y, (changed & Axes.Y) != 0, isWidget, opt)) altered |= Axes.Y;
-			if (FloatField("Z", ref visible.z, (changed & Axes.Z) != 0, false, opt)) altered |= Axes.Z;
+			if (FloatField("X", ref visible.x, (changed & Axes.X) != 0, opt)) altered |= Axes.X;
+			if (FloatField("Y", ref visible.y, (changed & Axes.Y) != 0, opt)) altered |= Axes.Y;
+			if (FloatField("Z", ref visible.z, (changed & Axes.Z) != 0, opt)) altered |= Axes.Z;
 
 			if (reset)
 			{
@@ -291,7 +260,7 @@ public class NumpadCameraControls : Editor
 			}
 			else if (altered != Axes.None)
 			{
-				NGUIEditorTools.RegisterUndo("Change Rotation", serializedObject.targetObjects);
+				Undo.RecordObjects(serializedObject.targetObjects, "Change Rotation");
 
 				foreach (Object obj in serializedObject.targetObjects)
 				{
