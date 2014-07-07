@@ -1,212 +1,232 @@
-	using UnityEngine;
-	using UnityEditor;
-	 
-	// /////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//
-	// Batch audio import settings modifier.
-	//
-	// Modifies all selected audio clips in the project window and applies the requested modification on the
-	// audio clips. Idea was to have the same choices for multiple files as you would have if you open the
-	// import settings of a single audio clip. Put this into Assets/Editor and once compiled by Unity you find
-	// the new functionality in Custom -> Sound. Enjoy! :-)
-	//
-	// April 2010. Based on Martin Schultz's texture import settings batch modifier.
-	//
-	// /////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public class ChangeAudioImportSettings {
-	 
-		[MenuItem ("Utility/AudioClip Settings/Toggle audio compression/Disable")]
-		static void ToggleCompression_Disable() {
-			SelectedToggleCompressionSettings(AudioImporterFormat.Native);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Toggle audio compression/Enable")]
-		static void ToggleCompression_Enable() {
-			SelectedToggleCompressionSettings(AudioImporterFormat.Compressed);
-		}
-	 
-		// ----------------------------------------------------------------------------
-	 
-		[MenuItem ("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/32")]
-		static void SetCompressionBitrate_32kbps() {
-			SelectedSetCompressionBitrate(32000);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/64")]
-		static void SetCompressionBitrate_64kbps() {
-			SelectedSetCompressionBitrate(64000);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/96")]
-		static void SetCompressionBitrate_96kbps() {
-			SelectedSetCompressionBitrate(96000);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/128")]
-		static void SetCompressionBitrate_128kbps() {
-			SelectedSetCompressionBitrate(128000);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/144")]
-		static void SetCompressionBitrate_144kbps() {
-			SelectedSetCompressionBitrate(144000);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/156 (default)")]
-		static void SetCompressionBitrate_156kbps() {
-			SelectedSetCompressionBitrate(156000);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/160")]
-		static void SetCompressionBitrate_160kbps() {
-			SelectedSetCompressionBitrate(160000);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/192")]
-		static void SetCompressionBitrate_192kbps() {
-			SelectedSetCompressionBitrate(192000);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/224")]
-		static void SetCompressionBitrate_224kbps() {
-			SelectedSetCompressionBitrate(224000);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/240")]
-		static void SetCompressionBitrate_240kbps() {
-			SelectedSetCompressionBitrate(240000);
-		}
-	 
-		// ----------------------------------------------------------------------------
-	 
-		[MenuItem ("Utility/AudioClip Settings/Load type/Stream from disc")]
-		static void ToggleDecompressOnLoad_Disable() {
-			SelectedToggleDecompressOnLoadSettings(AudioImporterLoadType.StreamFromDisc);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Load type/Decompress on load")]
-		static void ToggleDecompressOnLoad_Enable() {
-			SelectedToggleDecompressOnLoadSettings(AudioImporterLoadType.DecompressOnLoad);
-		}
-	   
-		[MenuItem ("Utility/AudioClip Settings/Load type/Compressed in memory")]
-		static void ToggleDecompressOnLoad_Enable2() {
-			SelectedToggleDecompressOnLoadSettings(AudioImporterLoadType.CompressedInMemory);
-		}
-	 
-		// ----------------------------------------------------------------------------
-	 
-		[MenuItem ("Utility/AudioClip Settings/Toggle 3D sound/Disable")]
-		static void Toggle3DSound_Disable() {
-			SelectedToggle3DSoundSettings(false);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Toggle 3D sound/Enable")]
-		static void Toggle3DSound_Enable() {
-			SelectedToggle3DSoundSettings(true);
-		}
-	 
-		// ----------------------------------------------------------------------------
-	 
-		[MenuItem ("Utility/AudioClip Settings/Toggle mono/Auto")]
-		static void ToggleForceToMono_Auto() {
-			SelectedToggleForceToMonoSettings(false);
-		}
-	 
-		[MenuItem ("Utility/AudioClip Settings/Toggle mono/Forced")]
-		static void ToggleForceToMono_Forced() {
-			SelectedToggleForceToMonoSettings(true);
-		}
-	 
-		// ----------------------------------------------------------------------------
-		 [MenuItem ("Utility/AudioClip Settings/Hardware Decoding/Enabled")]
-		static void enable_Hardware_yes() {
-			enableHardwareDecoding(true);
-		}
-		[MenuItem ("Utility/AudioClip Settings/Hardware Decoding/Disabled")]
-		static void enable_Hardware_no() {
-			enableHardwareDecoding(false);
-		}
-	   
-	   
-	   
-		static void enableHardwareDecoding ( bool enable )
-		{
-			Object[] audioclips = GetSelectedAudioclips();
-			Selection.objects = new Object[0];
-			foreach (AudioClip audioclip in audioclips) {
-				string path = AssetDatabase.GetAssetPath(audioclip);
-				AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
-				audioImporter.hardware = enable;
-				AssetDatabase.ImportAsset(path);
-			}
-		}
-	 
-		static void SelectedToggleCompressionSettings(AudioImporterFormat newFormat) {
-	 
-			Object[] audioclips = GetSelectedAudioclips();
-			Selection.objects = new Object[0];
-			foreach (AudioClip audioclip in audioclips) {
-				string path = AssetDatabase.GetAssetPath(audioclip);
-				AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
-				audioImporter.format = newFormat;
-				AssetDatabase.ImportAsset(path);
-			}
-		}
-	 
-		static void SelectedSetCompressionBitrate(float newCompressionBitrate) {
-	 
-			Object[] audioclips = GetSelectedAudioclips();
-			Selection.objects = new Object[0];
-			foreach (AudioClip audioclip in audioclips) {
-				string path = AssetDatabase.GetAssetPath(audioclip);
-				AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
-				audioImporter.compressionBitrate = (int)newCompressionBitrate;
-				AssetDatabase.ImportAsset(path);
-			}
-		}
-	 
-		static void SelectedToggleDecompressOnLoadSettings(AudioImporterLoadType enabled) {
-	 
-			Object[] audioclips = GetSelectedAudioclips();
-			Selection.objects = new Object[0];
-			foreach (AudioClip audioclip in audioclips) {
-				string path = AssetDatabase.GetAssetPath(audioclip);
-				AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
-				audioImporter.loadType = enabled;
-				AssetDatabase.ImportAsset(path);
-			}
-		}
-	 
-		static void SelectedToggle3DSoundSettings(bool enabled) {
-	 
-			Object[] audioclips = GetSelectedAudioclips();
-			Selection.objects = new Object[0];
-			foreach (AudioClip audioclip in audioclips) {
-				string path = AssetDatabase.GetAssetPath(audioclip);
-				AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
-				if(audioImporter.threeD != enabled)
-				{
-					 audioImporter.threeD = enabled;
-					 AssetDatabase.ImportAsset(path);
-				}
-			}
-		}
-	 
-		static void SelectedToggleForceToMonoSettings(bool enabled) {
-	 
-			Object[] audioclips = GetSelectedAudioclips();
-			Selection.objects = new Object[0];
-			foreach (AudioClip audioclip in audioclips) {
-				string path = AssetDatabase.GetAssetPath(audioclip);
-				AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
-				audioImporter.forceToMono = enabled;
-				AssetDatabase.ImportAsset(path);
-			}
-		}
-	 
-		static Object[] GetSelectedAudioclips()
-		{
-			return Selection.GetFiltered(typeof(AudioClip), SelectionMode.DeepAssets);
-		}
-	}
+using UnityEngine;
+using UnityEditor;
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Batch audio import settings modifier.
+//
+// Modifies all selected audio clips in the project window and applies the requested modification on the
+// audio clips. Idea was to have the same choices for multiple files as you would have if you open the
+// import settings of a single audio clip. Put this into Assets/Editor and once compiled by Unity you find
+// the new functionality in Custom -> Sound. Enjoy! :-)
+//
+// April 2010. Based on Martin Schultz's texture import settings batch modifier.
+//
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////
+public class ChangeAudioImportSettings
+{
+    [MenuItem("Utility/AudioClip Settings/Toggle audio compression/Disable")]
+    static void ToggleCompression_Disable()
+    {
+        SelectedToggleCompressionSettings(AudioImporterFormat.Native);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Toggle audio compression/Enable")]
+    static void ToggleCompression_Enable()
+    {
+        SelectedToggleCompressionSettings(AudioImporterFormat.Compressed);
+    }
+
+    // ----------------------------------------------------------------------------
+
+    [MenuItem("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/32")]
+    static void SetCompressionBitrate_32kbps()
+    {
+        SelectedSetCompressionBitrate(32000);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/64")]
+    static void SetCompressionBitrate_64kbps()
+    {
+        SelectedSetCompressionBitrate(64000);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/96")]
+    static void SetCompressionBitrate_96kbps()
+    {
+        SelectedSetCompressionBitrate(96000);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/128")]
+    static void SetCompressionBitrate_128kbps()
+    {
+        SelectedSetCompressionBitrate(128000);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/144")]
+    static void SetCompressionBitrate_144kbps()
+    {
+        SelectedSetCompressionBitrate(144000);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/156 (default)")]
+    static void SetCompressionBitrate_156kbps()
+    {
+        SelectedSetCompressionBitrate(156000);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/160")]
+    static void SetCompressionBitrate_160kbps()
+    {
+        SelectedSetCompressionBitrate(160000);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/192")]
+    static void SetCompressionBitrate_192kbps()
+    {
+        SelectedSetCompressionBitrate(192000);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/224")]
+    static void SetCompressionBitrate_224kbps()
+    {
+        SelectedSetCompressionBitrate(224000);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Set audio compression bitrate (kbps)/240")]
+    static void SetCompressionBitrate_240kbps()
+    {
+        SelectedSetCompressionBitrate(240000);
+    }
+
+    // ----------------------------------------------------------------------------
+
+    [MenuItem("Utility/AudioClip Settings/Load type/Stream from disc")]
+    static void ToggleDecompressOnLoad_Disable()
+    {
+        SelectedToggleDecompressOnLoadSettings(AudioImporterLoadType.StreamFromDisc);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Load type/Decompress on load")]
+    static void ToggleDecompressOnLoad_Enable()
+    {
+        SelectedToggleDecompressOnLoadSettings(AudioImporterLoadType.DecompressOnLoad);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Load type/Compressed in memory")]
+    static void ToggleDecompressOnLoad_Enable2()
+    {
+        SelectedToggleDecompressOnLoadSettings(AudioImporterLoadType.CompressedInMemory);
+    }
+
+    // ----------------------------------------------------------------------------
+
+    [MenuItem("Utility/AudioClip Settings/Toggle 3D sound/Disable")]
+    static void Toggle3DSound_Disable()
+    {
+        SelectedToggle3DSoundSettings(false);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Toggle 3D sound/Enable")]
+    static void Toggle3DSound_Enable()
+    {
+        SelectedToggle3DSoundSettings(true);
+    }
+
+    // ----------------------------------------------------------------------------
+
+    [MenuItem("Utility/AudioClip Settings/Toggle mono/Auto")]
+    static void ToggleForceToMono_Auto()
+    {
+        SelectedToggleForceToMonoSettings(false);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Toggle mono/Forced")]
+    static void ToggleForceToMono_Forced()
+    {
+        SelectedToggleForceToMonoSettings(true);
+    }
+
+    // ----------------------------------------------------------------------------
+    [MenuItem("Utility/AudioClip Settings/Hardware Decoding/Enabled")]
+    static void enable_Hardware_yes()
+    {
+        enableHardwareDecoding(true);
+    }
+
+    [MenuItem("Utility/AudioClip Settings/Hardware Decoding/Disabled")]
+    static void enable_Hardware_no()
+    {
+        enableHardwareDecoding(false);
+    }
+
+
+    static void enableHardwareDecoding(bool enable)
+    {
+        Object[] audioclips = GetSelectedAudioclips();
+        Selection.objects = new Object[0];
+        foreach(AudioClip audioclip in audioclips) {
+            string path = AssetDatabase.GetAssetPath(audioclip);
+            AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
+            audioImporter.hardware = enable;
+            AssetDatabase.ImportAsset(path);
+        }
+    }
+
+    static void SelectedToggleCompressionSettings(AudioImporterFormat newFormat)
+    {
+        Object[] audioclips = GetSelectedAudioclips();
+        Selection.objects = new Object[0];
+        foreach(AudioClip audioclip in audioclips) {
+            string path = AssetDatabase.GetAssetPath(audioclip);
+            AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
+            audioImporter.format = newFormat;
+            AssetDatabase.ImportAsset(path);
+        }
+    }
+
+    static void SelectedSetCompressionBitrate(float newCompressionBitrate)
+    {
+        Object[] audioclips = GetSelectedAudioclips();
+        Selection.objects = new Object[0];
+        foreach(AudioClip audioclip in audioclips) {
+            string path = AssetDatabase.GetAssetPath(audioclip);
+            AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
+            audioImporter.compressionBitrate = (int)newCompressionBitrate;
+            AssetDatabase.ImportAsset(path);
+        }
+    }
+
+    static void SelectedToggleDecompressOnLoadSettings(AudioImporterLoadType enabled)
+    {
+        Object[] audioclips = GetSelectedAudioclips();
+        Selection.objects = new Object[0];
+        foreach(AudioClip audioclip in audioclips) {
+            string path = AssetDatabase.GetAssetPath(audioclip);
+            AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
+            audioImporter.loadType = enabled;
+            AssetDatabase.ImportAsset(path);
+        }
+    }
+
+    static void SelectedToggle3DSoundSettings(bool enabled)
+    {
+        Object[] audioclips = GetSelectedAudioclips();
+        Selection.objects = new Object[0];
+        foreach(AudioClip audioclip in audioclips) {
+            string path = AssetDatabase.GetAssetPath(audioclip);
+            AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
+            if(audioImporter.threeD != enabled) {
+                audioImporter.threeD = enabled;
+                AssetDatabase.ImportAsset(path);
+            }
+        }
+    }
+
+    static void SelectedToggleForceToMonoSettings(bool enabled)
+    {
+        Object[] audioclips = GetSelectedAudioclips();
+        Selection.objects = new Object[0];
+        foreach(AudioClip audioclip in audioclips) {
+            string path = AssetDatabase.GetAssetPath(audioclip);
+            AudioImporter audioImporter = AssetImporter.GetAtPath(path) as AudioImporter;
+            audioImporter.forceToMono = enabled;
+            AssetDatabase.ImportAsset(path);
+        }
+    }
+
+    static Object[] GetSelectedAudioclips()
+    {
+        return Selection.GetFiltered(typeof(AudioClip), SelectionMode.DeepAssets);
+    }
+}

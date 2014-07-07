@@ -26,256 +26,300 @@ using UnityEditor;
 [CustomEditor(typeof(Transform)), CanEditMultipleObjects]
 public class TransformEditorUtils : Editor
 {
-	/// Numpad controls
-	UnityEditor.SceneView sceneView;
-	
-	private Vector3 eulerAngles;
-	private Event current;
-	private Quaternion rotHelper;
+    /// Numpad controls
+    UnityEditor.SceneView sceneView;
 
-	public void OnSceneGUI()
-	{
-	    current = Event.current;
-	
-	    if (!current.isKey || current.type != EventType.keyDown)
-	        return;
-	
-	    sceneView = UnityEditor.SceneView.lastActiveSceneView;
-	    eulerAngles = sceneView.camera.transform.rotation.eulerAngles;
-	    rotHelper = sceneView.camera.transform.rotation;
-	
-	    switch (current.keyCode)
-	    {
-	        case KeyCode.Keypad1:
-	            if (current.control == false)
-	                sceneView.LookAtDirect(SceneView.lastActiveSceneView.pivot, Quaternion.Euler(new Vector3(0f, 360f, 0f)));
-	            else
-	                sceneView.LookAtDirect(SceneView.lastActiveSceneView.pivot, Quaternion.Euler(new Vector3(0f, 180f, 0f)));
-	            break;
-	        case KeyCode.Keypad2:
-	            sceneView.LookAtDirect(SceneView.lastActiveSceneView.pivot, rotHelper * Quaternion.Euler(new Vector3(-15f, 0f, 0f)));
-	            break;
-	        case KeyCode.Keypad3:
-	            if (current.control == false)
-	                sceneView.LookAtDirect(SceneView.lastActiveSceneView.pivot, Quaternion.Euler(new Vector3(0f, 270f, 0f)));
-	            else
-	                sceneView.LookAtDirect(SceneView.lastActiveSceneView.pivot, Quaternion.Euler(new Vector3(0f, 90f, 0f)));
-	            break;
-	        case KeyCode.Keypad4:
-	            sceneView.LookAtDirect(SceneView.lastActiveSceneView.pivot, Quaternion.Euler(new Vector3(eulerAngles.x, eulerAngles.y + 15f, eulerAngles.z)));
-	            break;
-	        case KeyCode.Keypad5:
-	            sceneView.orthographic = !sceneView.orthographic;
-	            break;
-	        case KeyCode.Keypad6:
-	            sceneView.LookAtDirect(SceneView.lastActiveSceneView.pivot, Quaternion.Euler(new Vector3(eulerAngles.x, eulerAngles.y - 15f, eulerAngles.z)));
-	            break;
-	        case KeyCode.Keypad7:
-	            if (current.control == false)
-	                sceneView.LookAtDirect(SceneView.lastActiveSceneView.pivot, Quaternion.Euler(new Vector3(90f, 0f, 0f)));
-	            else
-	                sceneView.LookAtDirect(SceneView.lastActiveSceneView.pivot, Quaternion.Euler(new Vector3(270f, 0f, 0f)));
-	            break;
-	        case KeyCode.Keypad8:
-	            sceneView.LookAtDirect(SceneView.lastActiveSceneView.pivot, rotHelper * Quaternion.Euler(new Vector3(15f, 0f, 0f)));
-	            break;
-	        case KeyCode.KeypadPeriod:
-	            if (Selection.transforms.Length == 1)
-	                sceneView.LookAtDirect(Selection.activeTransform.position, sceneView.camera.transform.rotation);
-	            else if (Selection.transforms.Length > 1)
-	            {
-	                Vector3 tempVec = new Vector3();
-	                for (int i = 0; i < Selection.transforms.Length; i++)
-	                {
-	                    tempVec += Selection.transforms[i].position;
-	                }
-	                sceneView.LookAtDirect((tempVec / Selection.transforms.Length), sceneView.camera.transform.rotation);
-	            }
-	            break;
-	        case KeyCode.KeypadMinus:
-	            SceneView.RepaintAll();
-	            sceneView.size *= 1.1f;
-	            break;
-	        case KeyCode.KeypadPlus:
-	            SceneView.RepaintAll();
-	            sceneView.size /= 1.1f;
-	            break;
-	        case KeyCode.Keypad0:
-	        	sceneView.FrameSelected();
-	        	break;
-	    }
-	}
-	
-	/// End numpad controls, begin transform reset
+    Vector3 eulerAngles;
+    Event current;
+    Quaternion rotHelper;
 
-	SerializedProperty mPos;
-	SerializedProperty mRot;
-	SerializedProperty mScale;
+    public void OnSceneGUI()
+    {
+        current = Event.current;
 
-	void OnEnable ()
-	{
-		mPos = serializedObject.FindProperty("m_LocalPosition");
-		mRot = serializedObject.FindProperty("m_LocalRotation");
-		mScale = serializedObject.FindProperty("m_LocalScale");
-	}
+        if(!current.isKey || current.type != EventType.keyDown) {
+            return;
+        }
 
-	/// <summary>
-	/// Draw the inspector widget.
-	/// </summary>
+        sceneView = UnityEditor.SceneView.lastActiveSceneView;
+        eulerAngles = sceneView.camera.transform.rotation.eulerAngles;
+        rotHelper = sceneView.camera.transform.rotation;
 
-	public override void OnInspectorGUI ()
-	{
-		EditorGUIUtility.labelWidth = 15f;
+        switch(current.keyCode) {
+            case KeyCode.Keypad1:
+                if(current.control == false) {
+                    sceneView.LookAtDirect(
+                        SceneView.lastActiveSceneView.pivot,
+                        Quaternion.Euler(new Vector3(0f, 360f, 0f)));
+                }
+                else {
+                    sceneView.LookAtDirect(
+                        SceneView.lastActiveSceneView.pivot,
+                        Quaternion.Euler(new Vector3(0f, 180f, 0f)));
+                }
+                break;
+            case KeyCode.Keypad2:
+                sceneView.LookAtDirect(
+                    SceneView.lastActiveSceneView.pivot,
+                    rotHelper * Quaternion.Euler(new Vector3(-15f, 0f, 0f)));
+                break;
+            case KeyCode.Keypad3:
+                if(current.control == false) {
+                    sceneView.LookAtDirect(
+                        SceneView.lastActiveSceneView.pivot,
+                        Quaternion.Euler(new Vector3(0f, 270f, 0f)));
+                }
+                else {
+                    sceneView.LookAtDirect(
+                        SceneView.lastActiveSceneView.pivot,
+                        Quaternion.Euler(new Vector3(0f, 90f, 0f)));
+                }
+                break;
+            case KeyCode.Keypad4:
+                sceneView.LookAtDirect(
+                    SceneView.lastActiveSceneView.pivot,
+                    Quaternion.Euler(new Vector3(eulerAngles.x, eulerAngles.y + 15f, eulerAngles.z)));
+                break;
+            case KeyCode.Keypad5:
+                sceneView.orthographic = !sceneView.orthographic;
+                break;
+            case KeyCode.Keypad6:
+                sceneView.LookAtDirect(
+                    SceneView.lastActiveSceneView.pivot,
+                    Quaternion.Euler(new Vector3(eulerAngles.x, eulerAngles.y - 15f, eulerAngles.z)));
+                break;
+            case KeyCode.Keypad7:
+                if(current.control == false) {
+                    sceneView.LookAtDirect(
+                        SceneView.lastActiveSceneView.pivot,
+                        Quaternion.Euler(new Vector3(90f, 0f, 0f)));
+                }
+                else {
+                    sceneView.LookAtDirect(
+                        SceneView.lastActiveSceneView.pivot,
+                        Quaternion.Euler(new Vector3(270f, 0f, 0f)));
+                }
+                break;
+            case KeyCode.Keypad8:
+                sceneView.LookAtDirect(
+                    SceneView.lastActiveSceneView.pivot,
+                    rotHelper * Quaternion.Euler(new Vector3(15f, 0f, 0f)));
+                break;
+            case KeyCode.KeypadPeriod:
+                if(Selection.transforms.Length == 1) {
+                    sceneView.LookAtDirect(Selection.activeTransform.position, sceneView.camera.transform.rotation);
+                }
+                else if(Selection.transforms.Length > 1) {
+                    Vector3 tempVec = new Vector3();
+                    for(int i = 0; i < Selection.transforms.Length; i++) {
+                        tempVec += Selection.transforms[i].position;
+                    }
+                    sceneView.LookAtDirect((tempVec / Selection.transforms.Length), sceneView.camera.transform.rotation);
+                }
+                break;
+            case KeyCode.KeypadMinus:
+                SceneView.RepaintAll();
+                sceneView.size *= 1.1f;
+                break;
+            case KeyCode.KeypadPlus:
+                SceneView.RepaintAll();
+                sceneView.size /= 1.1f;
+                break;
+            case KeyCode.Keypad0:
+                sceneView.FrameSelected();
+                break;
+        }
+    }
 
-		serializedObject.Update();
+    /// End numpad controls, begin transform reset
+    SerializedProperty mPos;
 
-		DrawPosition();
-		DrawRotation();
-		DrawScale();
+    SerializedProperty mRot;
+    SerializedProperty mScale;
 
-		serializedObject.ApplyModifiedProperties();
-	}
+    void OnEnable()
+    {
+        mPos = serializedObject.FindProperty("m_LocalPosition");
+        mRot = serializedObject.FindProperty("m_LocalRotation");
+        mScale = serializedObject.FindProperty("m_LocalScale");
+    }
 
-	void DrawPosition ()
-	{
-		GUILayout.BeginHorizontal();
-		{
-			bool reset = GUILayout.Button("P", GUILayout.Width(20f));
+    /// <summary>
+    /// Draw the inspector widget.
+    /// </summary>
+    public override void OnInspectorGUI()
+    {
+        EditorGUIUtility.labelWidth = 15f;
 
-			EditorGUILayout.PropertyField(mPos.FindPropertyRelative("x"));
-			EditorGUILayout.PropertyField(mPos.FindPropertyRelative("y"));
-			EditorGUILayout.PropertyField(mPos.FindPropertyRelative("z"));
+        serializedObject.Update();
 
-			if (reset) mPos.vector3Value = Vector3.zero;
-		}
-		GUILayout.EndHorizontal();
-	}
+        DrawPosition();
+        DrawRotation();
+        DrawScale();
 
-	void DrawScale ()
-	{
-		GUILayout.BeginHorizontal();
-		{
-			bool reset = GUILayout.Button("S", GUILayout.Width(20f));
+        serializedObject.ApplyModifiedProperties();
+    }
 
-			EditorGUILayout.PropertyField(mScale.FindPropertyRelative("x"));
-			EditorGUILayout.PropertyField(mScale.FindPropertyRelative("y"));
-			EditorGUILayout.PropertyField(mScale.FindPropertyRelative("z"));
+    void DrawPosition()
+    {
+        GUILayout.BeginHorizontal();
+        {
+            bool reset = GUILayout.Button("P", GUILayout.Width(20f));
 
-			if (reset) mScale.vector3Value = Vector3.one;
-		}
-		GUILayout.EndHorizontal();
-	}
+            EditorGUILayout.PropertyField(mPos.FindPropertyRelative("x"));
+            EditorGUILayout.PropertyField(mPos.FindPropertyRelative("y"));
+            EditorGUILayout.PropertyField(mPos.FindPropertyRelative("z"));
 
-#region Rotation is ugly as hell... since there is no native support for quaternion property drawing
-	enum Axes : int
-	{
-		None = 0,
-		X = 1,
-		Y = 2,
-		Z = 4,
-		All = 7,
-	}
+            if(reset) {
+                mPos.vector3Value = Vector3.zero;
+            }
+        }
+        GUILayout.EndHorizontal();
+    }
 
-	Axes CheckDifference (Transform t, Vector3 original)
-	{
-		Vector3 next = t.localEulerAngles;
+    void DrawScale()
+    {
+        GUILayout.BeginHorizontal();
+        {
+            bool reset = GUILayout.Button("S", GUILayout.Width(20f));
 
-		Axes axes = Axes.None;
+            EditorGUILayout.PropertyField(mScale.FindPropertyRelative("x"));
+            EditorGUILayout.PropertyField(mScale.FindPropertyRelative("y"));
+            EditorGUILayout.PropertyField(mScale.FindPropertyRelative("z"));
 
-		if (Differs(next.x, original.x)) axes |= Axes.X;
-		if (Differs(next.y, original.y)) axes |= Axes.Y;
-		if (Differs(next.z, original.z)) axes |= Axes.Z;
+            if(reset) {
+                mScale.vector3Value = Vector3.one;
+            }
+        }
+        GUILayout.EndHorizontal();
+    }
 
-		return axes;
-	}
+    #region Rotation is ugly as hell... since there is no native support for quaternion property drawing
 
-	Axes CheckDifference (SerializedProperty property)
-	{
-		Axes axes = Axes.None;
+    enum Axes : int
+    {
+        None = 0,
+        X = 1,
+        Y = 2,
+        Z = 4,
+        All = 7,
+    }
 
-		if (property.hasMultipleDifferentValues)
-		{
-			Vector3 original = property.quaternionValue.eulerAngles;
+    Axes CheckDifference(Transform t, Vector3 original)
+    {
+        Vector3 next = t.localEulerAngles;
 
-			foreach (Object obj in serializedObject.targetObjects)
-			{
-				axes |= CheckDifference(obj as Transform, original);
-				if (axes == Axes.All) break;
-			}
-		}
-		return axes;
-	}
+        Axes axes = Axes.None;
 
-	/// <summary>
-	/// Draw an editable float field.
-	/// </summary>
-	/// <param name="hidden">Whether to replace the value with a dash</param>
-	static bool FloatField (string name, ref float value, bool hidden, GUILayoutOption opt)
-	{
-		float newValue = value;
-		GUI.changed = false;
+        if(Differs(next.x, original.x)) {
+            axes |= Axes.X;
+        }
+        if(Differs(next.y, original.y)) {
+            axes |= Axes.Y;
+        }
+        if(Differs(next.z, original.z)) {
+            axes |= Axes.Z;
+        }
 
-		if (!hidden)
-		{
-			newValue = EditorGUILayout.FloatField(name, newValue, opt);
-		}
-		else
-		{
-			float.TryParse(EditorGUILayout.TextField(name, "--", opt), out newValue);
-		}
+        return axes;
+    }
 
-		if (GUI.changed && Differs(newValue, value))
-		{
-			value = newValue;
-			return true;
-		}
-		return false;
-	}
+    Axes CheckDifference(SerializedProperty property)
+    {
+        Axes axes = Axes.None;
 
-	/// <summary>
-	/// Because Mathf.Approximately is too sensitive.
-	/// </summary>
+        if(property.hasMultipleDifferentValues) {
+            Vector3 original = property.quaternionValue.eulerAngles;
 
-	static bool Differs (float a, float b) { return Mathf.Abs(a - b) > 0.0001f; }
+            foreach(Object obj in serializedObject.targetObjects) {
+                axes |= CheckDifference(obj as Transform, original);
+                if(axes == Axes.All) {
+                    break;
+                }
+            }
+        }
+        return axes;
+    }
 
-	void DrawRotation ()
-	{
-		GUILayout.BeginHorizontal();
-		{
-			bool reset = GUILayout.Button("R", GUILayout.Width(20f));
+    /// <summary>
+    /// Draw an editable float field.
+    /// </summary>
+    /// <param name="hidden">Whether to replace the value with a dash</param>
+    static bool FloatField(string name, ref float value, bool hidden, GUILayoutOption opt)
+    {
+        float newValue = value;
+        GUI.changed = false;
 
-			Vector3 visible = (serializedObject.targetObject as Transform).localEulerAngles;
-			Axes changed = CheckDifference(mRot);
-			Axes altered = Axes.None;
+        if(!hidden) {
+            newValue = EditorGUILayout.FloatField(name, newValue, opt);
+        }
+        else {
+            float.TryParse(EditorGUILayout.TextField(name, "--", opt), out newValue);
+        }
 
-			GUILayoutOption opt = GUILayout.MinWidth(30f);
+        if(GUI.changed && Differs(newValue, value)) {
+            value = newValue;
+            return true;
+        }
+        return false;
+    }
 
-			if (FloatField("X", ref visible.x, (changed & Axes.X) != 0, opt)) altered |= Axes.X;
-			if (FloatField("Y", ref visible.y, (changed & Axes.Y) != 0, opt)) altered |= Axes.Y;
-			if (FloatField("Z", ref visible.z, (changed & Axes.Z) != 0, opt)) altered |= Axes.Z;
+    /// <summary>
+    /// Because Mathf.Approximately is too sensitive.
+    /// </summary>
+    static bool Differs(float a, float b)
+    {
+        return Mathf.Abs(a - b) > 0.0001f;
+    }
 
-			if (reset)
-			{
-				mRot.quaternionValue = Quaternion.identity;
-			}
-			else if (altered != Axes.None)
-			{
-				Undo.RecordObjects(serializedObject.targetObjects, "Change Rotation");
+    void DrawRotation()
+    {
+        GUILayout.BeginHorizontal();
+        {
+            bool reset = GUILayout.Button("R", GUILayout.Width(20f));
 
-				foreach (Object obj in serializedObject.targetObjects)
-				{
-					Transform t = obj as Transform;
-					Vector3 v = t.localEulerAngles;
+            Vector3 visible = (serializedObject.targetObject as Transform).localEulerAngles;
+            Axes changed = CheckDifference(mRot);
+            Axes altered = Axes.None;
 
-					if ((altered & Axes.X) != 0) v.x = visible.x;
-					if ((altered & Axes.Y) != 0) v.y = visible.y;
-					if ((altered & Axes.Z) != 0) v.z = visible.z;
+            GUILayoutOption opt = GUILayout.MinWidth(30f);
 
-					t.localEulerAngles = v;
-				}
-			}
-		}
-		GUILayout.EndHorizontal();
-	}
-#endregion
+            if(FloatField("X", ref visible.x, (changed & Axes.X) != 0, opt)) {
+                altered |= Axes.X;
+            }
+            if(FloatField("Y", ref visible.y, (changed & Axes.Y) != 0, opt)) {
+                altered |= Axes.Y;
+            }
+            if(FloatField("Z", ref visible.z, (changed & Axes.Z) != 0, opt)) {
+                altered |= Axes.Z;
+            }
+
+            if(reset) {
+                mRot.quaternionValue = Quaternion.identity;
+            }
+            else if(altered != Axes.None) {
+                Undo.RecordObjects(serializedObject.targetObjects, "Change Rotation");
+
+                foreach(Object obj in serializedObject.targetObjects) {
+                    Transform t = obj as Transform;
+                    Vector3 v = t.localEulerAngles;
+
+                    if((altered & Axes.X) != 0) {
+                        v.x = visible.x;
+                    }
+                    if((altered & Axes.Y) != 0) {
+                        v.y = visible.y;
+                    }
+                    if((altered & Axes.Z) != 0) {
+                        v.z = visible.z;
+                    }
+
+                    t.localEulerAngles = v;
+                }
+            }
+        }
+        GUILayout.EndHorizontal();
+    }
+
+    #endregion
 }

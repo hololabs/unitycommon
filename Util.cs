@@ -7,13 +7,13 @@ using Random = UnityEngine.Random;
 
 public static class Util
 {
-	public static int EnumCount<T>()
-	{
-		return Enum.GetValues(typeof(T)).Length;
-	}
+    public static int EnumCount<T>()
+    {
+        return Enum.GetValues(typeof(T)).Length;
+    }
 
-	public static string EnumString(Enum e)
-	{
-		return Enum.GetName(e.GetType(), e);
-	}
+    public static string EnumString(Enum e)
+    {
+        return Enum.GetName(e.GetType(), e);
+    }
 }

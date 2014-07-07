@@ -5,90 +5,79 @@ using System.Collections.Generic;
 
 //Based on Pixelplacement's original script "Group"
 public class Grouping
-{	
-	[MenuItem ("Utility/Group Selected %g", false, 1)]
-	static void GroupSelected()
-	{	
-		//Cache selected objects in scene.
-		Transform[] selectedObjects = Selection.transforms;
-		
-		//Early out if nothing is selected.
-		if(selectedObjects.Length == 0)
-		{
-			return;
-		}
-				
-		Vector3 averagePosition = Vector3.zero;
-		bool nestParent = true;
-		Transform newGroupTransform = new GameObject("Group").transform;
+{
+    [MenuItem("Utility/Group Selected %g", false, 1)]
+    static void GroupSelected()
+    {
+        //Cache selected objects in scene.
+        Transform[] selectedObjects = Selection.transforms;
 
-		Undo.RegisterCreatedObjectUndo(newGroupTransform, "Create group parent");
+        //Early out if nothing is selected.
+        if(selectedObjects.Length == 0) {
+            return;
+        }
 
-		Transform coreParent = selectedObjects[0].parent;
-		foreach(Transform item in selectedObjects)
-		{
-			if(item.parent != coreParent)
-			{
-				nestParent = false;
-			}
-			averagePosition += item.position;
-		}
+        Vector3 averagePosition = Vector3.zero;
+        bool nestParent = true;
+        Transform newGroupTransform = new GameObject("Group").transform;
 
-		if(nestParent)
-		{
-			Undo.SetTransformParent(newGroupTransform, coreParent, "Set group parent's parent");
-			newGroupTransform.position = averagePosition / selectedObjects.Length;
-		}
-		else
-		{
-			//Place group's pivot on the active transform in the scene.
-			newGroupTransform.position = Selection.activeTransform.position;
-		}
-		
-		//Set selected objects as children of the group.
-		foreach(Transform item in selectedObjects)
-		{
-			Undo.SetTransformParent(item, newGroupTransform, "Group Selected");
-		}
-	}
+        Undo.RegisterCreatedObjectUndo(newGroupTransform, "Create group parent");
 
-	[MenuItem ("Utility/Ungroup Selected %#g", false, 2)]
-	static void UngroupSelected()
-	{
-		Transform activeSelection = Selection.activeTransform;
+        Transform coreParent = selectedObjects[0].parent;
+        foreach(Transform item in selectedObjects) {
+            if(item.parent != coreParent) {
+                nestParent = false;
+            }
+            averagePosition += item.position;
+        }
 
-		//Early out if there's nothing to do.
-		if(activeSelection.childCount == 0)
-		{
-			Debug.Log("Ungroup " + activeSelection.name + ": selected object has nothing to ungroup!");
-			return;
-		}
-		
-		Transform selectedParent = activeSelection.parent;
+        if(nestParent) {
+            Undo.SetTransformParent(newGroupTransform, coreParent, "Set group parent's parent");
+            newGroupTransform.position = averagePosition / selectedObjects.Length;
+        }
+        else {
+            //Place group's pivot on the active transform in the scene.
+            newGroupTransform.position = Selection.activeTransform.position;
+        }
 
-		//Store each child in a list, since otherwise we'd mess with the
-		//enumerable state while enumerating it.
-		List<Transform> toUnparent = new List<Transform>();
+        //Set selected objects as children of the group.
+        foreach(Transform item in selectedObjects) {
+            Undo.SetTransformParent(item, newGroupTransform, "Group Selected");
+        }
+    }
 
-		foreach(Transform child in activeSelection)
-		{
-			toUnparent.Add(child);
-		}
+    [MenuItem("Utility/Ungroup Selected %#g", false, 2)]
+    static void UngroupSelected()
+    {
+        Transform activeSelection = Selection.activeTransform;
 
-		foreach(Transform child in toUnparent)
-		{
-			Undo.SetTransformParent(child, selectedParent, "Ungroup " + activeSelection.name);
-		}
+        //Early out if there's nothing to do.
+        if(activeSelection.childCount == 0) {
+            Debug.Log("Ungroup " + activeSelection.name + ": selected object has nothing to ungroup!");
+            return;
+        }
 
-		if(activeSelection.GetComponents<Component>().Length > 1)
-		{
-			Debug.Log("Ungroup " + activeSelection.name + ": not deleting the group parent because it has other components on it!\nDelete it manually if you need to.");
-		}
-		else
-		{
-			Undo.DestroyObjectImmediate(activeSelection.gameObject);
-		}
-	}
+        Transform selectedParent = activeSelection.parent;
 
+        //Store each child in a list, since otherwise we'd mess with the
+        //enumerable state while enumerating it.
+        List<Transform> toUnparent = new List<Transform>();
+
+        foreach(Transform child in activeSelection) {
+            toUnparent.Add(child);
+        }
+
+        foreach(Transform child in toUnparent) {
+            Undo.SetTransformParent(child, selectedParent, "Ungroup " + activeSelection.name);
+        }
+
+        if(activeSelection.GetComponents<Component>().Length > 1) {
+            Debug.Log(
+                "Ungroup " + activeSelection.name +
+                ": not deleting the group parent because it has other components on it!\nDelete it manually if you need to.");
+        }
+        else {
+            Undo.DestroyObjectImmediate(activeSelection.gameObject);
+        }
+    }
 }
-
