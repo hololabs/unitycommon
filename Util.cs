@@ -16,4 +16,16 @@ public static class Util
     {
         return Enum.GetName(e.GetType(), e);
     }
+
+    public static T AddOrGetComponent<T>(this GameObject go) where T : Component
+    {
+        //We'd like to do this, but the Unity "fake null" stuff causes problems...
+        //return go.GetComponent<T>() ?? go.AddComponent<T>();
+
+        T c = go.GetComponent<T>();
+        if(!c) {
+			c = go.AddComponent<T>();
+		}
+		return c;
+    }
 }
