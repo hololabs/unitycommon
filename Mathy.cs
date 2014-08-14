@@ -138,4 +138,8 @@ public static class Mathy
             Vector3.Dot(n, Vector3.Cross(v1, v2)),
             Vector3.Dot(v1, v2)) * Mathf.Rad2Deg;
     }
+
+    public static bool CompareVectors(Vector3 a, Vector3 b) {
+        return (Mathf.Approximately(a.x, b.x) && Mathf.Approximately(a.y, b.y) && Mathf.Approximately(a.z, b.z));
+    }
 }
