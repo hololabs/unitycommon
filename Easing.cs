@@ -5,7 +5,12 @@ public static class Easing
 {
     // Adapted from source : http://www.robertpenner.com/easing/
 
-    const float PiOver2 = Mathf.PI / 2;
+    const float PI_OVER2 = Mathf.PI / 2;
+
+    public static float Ease(float linearStep, AnimationCurve easingCurve)
+    {
+        return easingCurve.Evaluate(linearStep);
+    }
 
     public static float Ease(float linearStep, float acceleration, EaseType type)
     {
@@ -130,17 +135,17 @@ public static class Easing
     {
         public static float EaseIn(float s)
         {
-            return Mathf.Sin(s * PiOver2 - PiOver2) + 1;
+            return Mathf.Sin(s * PI_OVER2 - PI_OVER2) + 1;
         }
 
         public static float EaseOut(float s)
         {
-            return Mathf.Sin(s * PiOver2);
+            return Mathf.Sin(s * PI_OVER2);
         }
 
         public static float EaseInOut(float s)
         {
-            return (Mathf.Sin(s * Mathf.PI - PiOver2) + 1) / 2;
+            return (Mathf.Sin(s * Mathf.PI - PI_OVER2) + 1) / 2;
         }
     }
 

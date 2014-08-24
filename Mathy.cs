@@ -13,7 +13,7 @@ public static class CurveHelper
             new Keyframe(0, 0, 0, 0),
             new Keyframe(0.5f, 1f, 0, 0),
             new Keyframe(1f, 0, 0, 0)
-            );
+        );
     }
 }
 
