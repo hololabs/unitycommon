@@ -19,6 +19,21 @@ public static class CurveHelper
 
 public static class Mathy
 {
+    public static float Lexp(float from, float to, float t)
+    {
+        return from + (to - from) * t;
+    }
+
+    public static Vector3 Lexp(Vector3 from, Vector3 to, float t)
+    {
+        return new Vector3(from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t, from.z + (to.z - from.z) * t);
+    }
+
+    public static Vector2 Lexp(Vector2 from, Vector2 to, float t)
+    {
+        return new Vector2(from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+    }
+
     public static float Sin(float amplitude, float period, float offset)
     {
         return Mathf.Sin(Time.time * (1f / period) + offset) * amplitude;
