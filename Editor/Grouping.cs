@@ -6,16 +6,23 @@ using System.Collections.Generic;
 //Based on Pixelplacement's original script "Group"
 public class Grouping
 {
+    [MenuItem("Utility/Group Selected %g", true, 1)]
+    static bool CanGroupSelected()
+    {
+        return Selection.transforms.Length > 0;
+    }
+
+    [MenuItem("Utility/Ungroup Selected %#g", true, 2)]
+    static bool CanUngroupSelected()
+    {
+        return Selection.activeTransform != null && Selection.activeTransform.childCount > 0;
+    }
+
     [MenuItem("Utility/Group Selected %g", false, 1)]
     static void GroupSelected()
     {
         //Cache selected objects in scene.
         Transform[] selectedObjects = Selection.transforms;
-
-        //Early out if nothing is selected.
-        if(selectedObjects.Length == 0) {
-            return;
-        }
 
         Vector3 averagePosition = Vector3.zero;
         bool nestParent = true;
@@ -51,12 +58,6 @@ public class Grouping
     {
         Transform activeSelection = Selection.activeTransform;
 
-        //Early out if there's nothing to do.
-        if(activeSelection.childCount == 0) {
-            Debug.Log("Ungroup " + activeSelection.name + ": selected object has nothing to ungroup!");
-            return;
-        }
-
         Transform selectedParent = activeSelection.parent;
 
         //Store each child in a list, since otherwise we'd mess with the
@@ -72,9 +73,7 @@ public class Grouping
         }
 
         if(activeSelection.GetComponents<Component>().Length > 1) {
-            Debug.Log(
-                "Ungroup " + activeSelection.name +
-                ": not deleting the group parent because it has other components on it!\nDelete it manually if you need to.");
+            Debug.Log("Ungroup " + activeSelection.name + ": not deleting the group parent because it has other components on it!\nDelete it manually if you need to.");
         }
         else {
             Undo.DestroyObjectImmediate(activeSelection.gameObject);

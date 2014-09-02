@@ -9,6 +9,22 @@ using UnityEditor;
 
 public class ReverseWinding
 {
+    [MenuItem("Utility/Reverse winding order", true, 15)]
+    static bool CanReverseWindingOrder()
+    {
+        var s = Selection.activeTransform;
+        if(s == null) {
+            return false;
+        }
+
+        var mf = Selection.activeTransform.GetComponent<MeshFilter>();
+        if(mf == null) {
+            return false;
+        }
+
+        return mf.sharedMesh != null;
+    }
+
     [MenuItem("Utility/Reverse winding order", false, 15)]
     static void ReverseWindingOrder()
     {

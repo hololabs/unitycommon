@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Debug = UnityEngine.Debug;
@@ -8,20 +8,25 @@ using UnityEditor;
 
 public class SetTagRecursive
 {
-    [MenuItem("Utility/Assign Current Tag to Children")]
-    public static void SetTag()
+    [MenuItem("Utility/Assign Current Tag to Children", true, 500)]
+    public static bool CanSetTagRecursively()
     {
-        var t = Selection.activeTransform;
-        SetTag(t);
+        return Selection.activeTransform != null && Selection.activeTransform.childCount > 0;
     }
 
-    static void SetTag(Transform current)
+    [MenuItem("Utility/Assign Current Tag to Children", false, 500)]
+    public static void SetTagRecursively()
     {
-        string tag = current.tag;
-        foreach(Transform t in current) {
-            t.tag = tag;
-            if(t.childCount > 0) {
-                SetTag(t);
+        SetTagRecursively(Selection.activeTransform);
+    }
+
+    static void SetTagRecursively(Transform t)
+    {
+        string tag = t.tag;
+        foreach(Transform c in t) {
+            c.tag = tag;
+            if(c.childCount > 0) {
+                SetTagRecursively(c);
             }
         }
     }

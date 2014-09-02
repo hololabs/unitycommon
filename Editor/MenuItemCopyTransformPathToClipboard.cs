@@ -6,6 +6,12 @@ using UnityEditor;
 
 public static class MenuItemCopyTransformPathToClipboard
 {
+    [MenuItem("Utility/Copy Transform Path to Clipboard", true, 150)]
+    static bool CanCopyTransformPathToClipboard()
+    {
+        return Selection.activeTransform != null;
+    }
+
     [MenuItem("Utility/Copy Transform Path to Clipboard", false, 150)]
     static void CopyTransformPathToClipboard()
     {
