@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -12,7 +11,6 @@ using System.Linq;
 using System.Text;
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 public static class TransformHierarchyTools
 {
@@ -111,8 +109,7 @@ public static class TransformHierarchyTools
 
     // Limitations:
     // - Only transfers one of each component type (ie. won't paste two instances of the same script onto the destination.)
-    // - Will only transfer over public fields (ie. will miss non-public but serializable fields.)
-    // - Won't transfer properties, which aren't serializable on scripts but are on Unity components. (This is a big one.)
+    // - Will only transfer over public fields (ie. will miss non-public but serializable fields on scripts.)
     static void TransferComponents(Transform source, Transform destination, List<Component> componentsToVerify, StringBuilder report)
     {
         report.AppendLine("\nTransfering components from " + source.name + " to " + destination.name + ".");
