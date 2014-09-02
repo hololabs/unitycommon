@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -122,17 +123,21 @@ public static class TransformHierarchyTools
             var componentType = sc.GetType();
             var destMatch = destComponents.FirstOrDefault(dc => dc.GetType() == componentType);
             if(destMatch == null) {
-                var newComponent = destination.gameObject.AddComponent(componentType);
-                Undo.RegisterCreatedObjectUndo(newComponent, "Paste Component Additively");
+                if(!UnityEditorInternal.ComponentUtility.CopyComponent(sc)) {
+                    Debug.Log("Error copying component " + componentType.Name + " from " + sc.name);
+                    continue;
+                }
+                if(!UnityEditorInternal.ComponentUtility.PasteComponentAsNew(destination.gameObject)) {
+                    Debug.Log("Error pasting component " + componentType.Name + " to " + destination.name);
+                    continue;
+                }
+
+                var newComponent = destination.GetComponent(componentType);
+
+                //Pretty sure PasteComponentAsNew handles this itself.
+                //Undo.RegisterCreatedObjectUndo(newComponent, "Paste Component Additively");
 
                 report.AppendLine("\tCreated " + componentType.Name + " on " + destination.name + ";");
-
-                var fields = componentType.GetFields(BindingFlags.Public | BindingFlags.Instance);
-                foreach(var field in fields) {
-                    var value = field.GetValue(sc);
-                    report.AppendLine("\t\tAssigning " + sc.name + "/" + componentType.Name + " -> " + field.Name + ": " + value);
-                    field.SetValue(newComponent, value);
-                }
 
                 componentsToVerify.Add(newComponent);
             }
@@ -167,17 +172,16 @@ public static class TransformHierarchyTools
     {
         bool componentDidChange = false;
 
-        var props = component.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        var props = component.GetType()
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(pi => pi.CanWrite && pi.CanRead)
+            .Where(p => typeof(Component).IsAssignableFrom(p.PropertyType));
         
-        foreach(var p in props) {
-            report.AppendLine("*** " + p.Name + ": " + (typeof(Component).IsAssignableFrom(p.PropertyType)));
-        }
 
-        var fields = component.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-        foreach(var field in fields) {
-            var fieldType = field.FieldType;
-            if(typeof(Component).IsAssignableFrom(fieldType)) {
-                var fieldValue = (Component)field.GetValue(component);
+        foreach(var prop in props) {
+            var propertyType = prop.PropertyType;
+            if(typeof(Component).IsAssignableFrom(propertyType)) {
+                var fieldValue = (Component)prop.GetGetMethod().Invoke(component, new object[] {});
 
                 if(fieldValue.transform.root == sourceRoot) {
                     string fieldPath = GetTransformPath(fieldValue);
@@ -195,30 +199,29 @@ public static class TransformHierarchyTools
                     }
 
                     if(newTargetTransform == null) {
-                        report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + field.Name + "' on " +
+                        report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + prop.Name + "' on " +
                                           component.name + " from " + fieldPath + ", but there was no corresponding transform at the destination.");
                         continue;
                     }
-                    var newTargetComponent = newTargetTransform.GetComponent(fieldType);
+                    var newTargetComponent = newTargetTransform.GetComponent(propertyType);
                     if(newTargetComponent == null) {
-                        report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + field.Name + "' on " +
+                        report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + prop.Name + "' on " +
                                           component.name + " from " + fieldPath + ", but there was no corresponding component at the destination.");
                         continue;
                     }
 
-                    Undo.RecordObject(component, "Rewire component values");
-                    field.SetValue(component, newTargetComponent);
+                    //This one isn't necessary since we're already recording the component creation!
+                    //Undo.RecordObject(component, "Rewire component values");
+
+                    prop.GetSetMethod().Invoke(component, new object[] { newTargetComponent });
                     componentDidChange = true;
 
                     string newPath = fieldPath.Replace(sourceRoot.name, destinationRoot.name);
-                    report.AppendLine("\tRewired component " + component.GetType().Name + "'s field '" + field.Name + "' on " + component.name + " from " + fieldPath + " to " + newPath);
+                    report.AppendLine("\tRewired component " + component.GetType().Name + "'s field '" + prop.Name + "' on " + component.name + " from " + fieldPath + " to " + newPath);
                 }
                 else {
-                    report.AppendLine("\tIgnoring '" + field.Name + "', since its root is " + fieldValue.transform.root + " instead of " + sourceRoot);
+                    report.AppendLine("\tIgnoring '" + prop.Name + "', since its root is " + fieldValue.transform.root + " instead of " + sourceRoot);
                 }
-            }
-            else {
-                report.AppendLine("\tIgnoring '" + field.Name + "', since it's of type " + fieldType.Name + ".");
             }
         }
         return componentDidChange;
@@ -270,9 +273,6 @@ public static class TransformHierarchyTools
                 else {
                     report.AppendLine("\tIgnoring '" + field.Name + "', since its root is " + fieldValue.transform.root + " instead of " + sourceRoot);
                 }
-            }
-            else {
-                report.AppendLine("\tIgnoring '" + field.Name + "', since it's of type " + fieldType.Name + ".");
             }
         }
         return componentDidChange;
