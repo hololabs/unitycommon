@@ -151,10 +151,10 @@ public static class TransformHierarchyTools
             bool componentDidChange;
 
             if(c is MonoBehaviour) {
-                componentDidChange = RewireMonoBehaviours(sourceRoot, destinationRoot, report, c);
+                componentDidChange = RewireMonoBehaviour(sourceRoot, destinationRoot, report, c);
             }
             else {
-                componentDidChange = RewireBuiltInComponents(sourceRoot, destinationRoot, report, c);
+                componentDidChange = RewireBuiltInComponent(sourceRoot, destinationRoot, report, c);
             }
 
             if(componentDidChange) {
@@ -163,9 +163,7 @@ public static class TransformHierarchyTools
         }
     }
 
-
-
-    static bool RewireBuiltInComponents(Transform sourceRoot, Transform destinationRoot, StringBuilder report, Component component)
+    static bool RewireBuiltInComponent(Transform sourceRoot, Transform destinationRoot, StringBuilder report, Component component)
     {
         bool componentDidChange = false;
 
@@ -180,51 +178,57 @@ public static class TransformHierarchyTools
             if(typeof(Component).IsAssignableFrom(propertyType)) {
                 var fieldValue = (Component)prop.GetGetMethod().Invoke(component, new object[] {});
 
-                if(fieldValue.transform.root == sourceRoot) {
-                    string fieldPath = GetTransformPath(fieldValue);
+                report.AppendLine("Verifying the '" + prop.Name + "' (" + propertyType.Name + ") prop of component '" + component.GetType().Name + "' on " + component.name + ", parented to " + component.transform.root.name);
+                if(fieldValue == null) {
+                    report.AppendLine("\tIgnoring '" + prop.Name + "', since its value is null.");
+                    continue;
+                }
 
-                    //We need to cut the first segment from the path, since it's the root
-                    string truncatedFieldPath = fieldPath.Substring(fieldPath.IndexOf('/') + 1);
+                if(fieldValue.transform.root != sourceRoot) {
+                    report.AppendLine("\tIgnoring '" + prop.Name + "', since its root is " + fieldValue.transform.root + " instead of " + sourceRoot);
+                    continue;;
+                }
 
-                    Transform newTargetTransform;
-                    if(truncatedFieldPath == sourceRoot.name) {
-                        //The component is on the root of the object, so let's use that.
-                        newTargetTransform = destinationRoot;
-                    }
-                    else {
-                        newTargetTransform = destinationRoot.Find(truncatedFieldPath);
-                    }
+                string fieldPath = GetTransformPath(fieldValue);
 
-                    if(newTargetTransform == null) {
-                        report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + prop.Name + "' on " +
-                                          component.name + " from " + fieldPath + ", but there was no corresponding transform at the destination.");
-                        continue;
-                    }
-                    var newTargetComponent = newTargetTransform.GetComponent(propertyType);
-                    if(newTargetComponent == null) {
-                        report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + prop.Name + "' on " +
-                                          component.name + " from " + fieldPath + ", but there was no corresponding component at the destination.");
-                        continue;
-                    }
+                //We need to cut the first segment from the path, since it's the root
+                string truncatedFieldPath = fieldPath.Substring(fieldPath.IndexOf('/') + 1);
 
-                    //This one isn't necessary since we're already recording the component creation!
-                    //Undo.RecordObject(component, "Rewire component values");
-
-                    prop.GetSetMethod().Invoke(component, new object[] { newTargetComponent });
-                    componentDidChange = true;
-
-                    string newPath = fieldPath.Replace(sourceRoot.name, destinationRoot.name);
-                    report.AppendLine("\tRewired component " + component.GetType().Name + "'s field '" + prop.Name + "' on " + component.name + " from " + fieldPath + " to " + newPath);
+                Transform newTargetTransform;
+                if(truncatedFieldPath == sourceRoot.name) {
+                    //The component is on the root of the object, so let's use that.
+                    newTargetTransform = destinationRoot;
                 }
                 else {
-                    report.AppendLine("\tIgnoring '" + prop.Name + "', since its root is " + fieldValue.transform.root + " instead of " + sourceRoot);
+                    newTargetTransform = destinationRoot.Find(truncatedFieldPath);
                 }
+
+                if(newTargetTransform == null) {
+                    report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + prop.Name + "' on " +
+                                      component.name + " from " + fieldPath + ", but there was no corresponding transform at the destination.");
+                    continue;
+                }
+                var newTargetComponent = newTargetTransform.GetComponent(propertyType);
+                if(newTargetComponent == null) {
+                    report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + prop.Name + "' on " +
+                                      component.name + " from " + fieldPath + ", but there was no corresponding component at the destination.");
+                    continue;
+                }
+
+                //This one isn't necessary since we're already recording the component creation!
+                //Undo.RecordObject(component, "Rewire component values");
+
+                prop.GetSetMethod().Invoke(component, new object[] {newTargetComponent});
+                componentDidChange = true;
+
+                string newPath = fieldPath.Replace(sourceRoot.name, destinationRoot.name);
+                report.AppendLine("\tRewired component " + component.GetType().Name + "'s field '" + prop.Name + "' on " + component.name + " from " + fieldPath + " to " + newPath);
             }
         }
         return componentDidChange;
     }
 
-    static bool RewireMonoBehaviours(Transform sourceRoot, Transform destinationRoot, StringBuilder report, Component component)
+    static bool RewireMonoBehaviour(Transform sourceRoot, Transform destinationRoot, StringBuilder report, Component component)
     {
         bool componentDidChange = false;
         var fields = component.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
@@ -233,43 +237,49 @@ public static class TransformHierarchyTools
             if(typeof(Component).IsAssignableFrom(fieldType)) {
                 var fieldValue = (Component)field.GetValue(component);
 
-                if(fieldValue.transform.root == sourceRoot) {
-                    string fieldPath = GetTransformPath(fieldValue);
+                report.AppendLine("Verifying the '" + field.Name + "' (" + fieldType.Name + ") prop of component '" + component.GetType().Name + "' on " + component.name + ", parented to " + component.transform.root.name);
+                if(fieldValue == null) {
+                    report.AppendLine("\tIgnoring '" + field.Name + "', since its value is null.");
+                    continue;
+                }
 
-                    //We need to cut the first segment from the path, since it's the root
-                    string truncatedFieldPath = fieldPath.Substring(fieldPath.IndexOf('/') + 1);
+                if(fieldValue.transform.root != sourceRoot) {
+                    report.AppendLine("\tIgnoring '" + field.Name + "', since its root is " + fieldValue.transform.root + " instead of " + sourceRoot);
+                    continue;
+                }
 
-                    Transform newTargetTransform;
-                    if(truncatedFieldPath == sourceRoot.name) {
-                        //The component is on the root of the object, so let's use that.
-                        newTargetTransform = destinationRoot;
-                    }
-                    else {
-                        newTargetTransform = destinationRoot.Find(truncatedFieldPath);
-                    }
+                string fieldPath = GetTransformPath(fieldValue);
 
-                    if(newTargetTransform == null) {
-                        report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + field.Name + "' on " +
-                                          component.name + " from " + fieldPath + ", but there was no corresponding transform at the destination.");
-                        continue;
-                    }
-                    var newTargetComponent = newTargetTransform.GetComponent(fieldType);
-                    if(newTargetComponent == null) {
-                        report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + field.Name + "' on " +
-                                          component.name + " from " + fieldPath + ", but there was no corresponding component at the destination.");
-                        continue;
-                    }
+                //We need to cut the first segment from the path, since it's the root
+                string truncatedFieldPath = fieldPath.Substring(fieldPath.IndexOf('/') + 1);
 
-                    Undo.RecordObject(component, "Rewire component values");
-                    field.SetValue(component, newTargetComponent);
-                    componentDidChange = true;
-
-                    string newPath = fieldPath.Replace(sourceRoot.name, destinationRoot.name);
-                    report.AppendLine("\tRewired component " + component.GetType().Name + "'s field '" + field.Name + "' on " + component.name + " from " + fieldPath + " to " + newPath);
+                Transform newTargetTransform;
+                if(truncatedFieldPath == sourceRoot.name) {
+                    //The component is on the root of the object, so let's use that.
+                    newTargetTransform = destinationRoot;
                 }
                 else {
-                    report.AppendLine("\tIgnoring '" + field.Name + "', since its root is " + fieldValue.transform.root + " instead of " + sourceRoot);
+                    newTargetTransform = destinationRoot.Find(truncatedFieldPath);
                 }
+
+                if(newTargetTransform == null) {
+                    report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + field.Name + "' on " +
+                                      component.name + " from " + fieldPath + ", but there was no corresponding transform at the destination.");
+                    continue;
+                }
+                var newTargetComponent = newTargetTransform.GetComponent(fieldType);
+                if(newTargetComponent == null) {
+                    report.AppendLine("\tTried to rewire component " + component.GetType().Name + "'s field '" + field.Name + "' on " +
+                                      component.name + " from " + fieldPath + ", but there was no corresponding component at the destination.");
+                    continue;
+                }
+
+                Undo.RecordObject(component, "Rewire component values");
+                field.SetValue(component, newTargetComponent);
+                componentDidChange = true;
+
+                string newPath = fieldPath.Replace(sourceRoot.name, destinationRoot.name);
+                report.AppendLine("\tRewired component " + component.GetType().Name + "'s field '" + field.Name + "' on " + component.name + " from " + fieldPath + " to " + newPath);
             }
         }
         return componentDidChange;
