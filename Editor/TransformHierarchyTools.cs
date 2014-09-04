@@ -71,7 +71,7 @@ public static class TransformHierarchyTools
         Debug.Log(report.ToString());
     }
 
-    static void RecursiveAdditivePaste(Transform source, Transform destination, List<Component> componentsToVerify, StringBuilder report)
+    public static void RecursiveAdditivePaste(Transform source, Transform destination, List<Component> componentsToVerify, StringBuilder report)
     {
         TransferComponents(source, destination, componentsToVerify, report);
 
@@ -143,7 +143,7 @@ public static class TransformHierarchyTools
 
     //We perform this as a separate step at the end of any paste because we only want to
     //verify components after all possible references have also been pasted to the destination.
-    static void VerifyAndRewireComponents(Transform sourceRoot, Transform destinationRoot, IEnumerable<Component> components, StringBuilder report)
+    public static void VerifyAndRewireComponents(Transform sourceRoot, Transform destinationRoot, IEnumerable<Component> components, StringBuilder report)
     {
         foreach(var c in components) {
             report.AppendLine("\nVerifying and rewiring fields on " + destinationRoot.name + "'s " + c.GetType().Name);
