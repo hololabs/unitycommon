@@ -141,8 +141,8 @@ public static class TransformHierarchyTools
             }
         }
 
-        report.AppendLine("\tChanging tag from '" + destination.tag + "' to '" + source.tag + "' and" +
-                          "layer from '" + destination.gameObject.layer + "' to " + source.gameObject.layer + "'.");
+        report.AppendLine("\tChanging tag from '" + destination.tag + "' to '" + source.tag + "' and " +
+                          "layer from '" + destination.gameObject.layer + "' to '" + source.gameObject.layer + "'.");
         destination.tag = source.tag;
         destination.gameObject.layer = source.gameObject.layer;
     }
