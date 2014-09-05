@@ -78,18 +78,20 @@ public static class TransformHierarchyTools
         var sourceChildren = source.Cast<Transform>().OrderBy(c => c.name);
         var destinationChildren = destination.Cast<Transform>().OrderBy(c => c.name);
 
-        foreach(var child in sourceChildren) {
-            var destMatch = destinationChildren.FirstOrDefault(c => c.name == child.name);
+        foreach(var sourceChild in sourceChildren) {
+            var destMatch = destinationChildren.FirstOrDefault(c => c.name == sourceChild.name);
             if(destMatch != null) {
-                RecursiveAdditivePaste(child, destMatch, componentsToVerify, report);
+                destMatch.tag = sourceChild.tag;
+                destMatch.gameObject.layer = sourceChild.gameObject.layer;
+                RecursiveAdditivePaste(sourceChild, destMatch, componentsToVerify, report);
             }
             else {
-                var newChild = (Transform)Object.Instantiate(child, child.position, child.rotation);
-                newChild.name = child.name;
+                var newChild = (Transform)Object.Instantiate(sourceChild, sourceChild.position, sourceChild.rotation);
+                newChild.name = sourceChild.name;
                 newChild.parent = destination.transform;
-                newChild.localPosition = child.localPosition;
-                newChild.localRotation = child.localRotation;
-                newChild.localScale = child.localScale;
+                newChild.localPosition = sourceChild.localPosition;
+                newChild.localRotation = sourceChild.localRotation;
+                newChild.localScale = sourceChild.localScale;
 
                 Undo.RegisterCreatedObjectUndo(newChild.gameObject, "Paste Hierarchy Additively");
                 report.AppendLine("Added " + newChild.name + " to " + destination.name + ";");
