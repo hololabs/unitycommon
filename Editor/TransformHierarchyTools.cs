@@ -81,8 +81,6 @@ public static class TransformHierarchyTools
         foreach(var sourceChild in sourceChildren) {
             var destMatch = destinationChildren.FirstOrDefault(c => c.name == sourceChild.name);
             if(destMatch != null) {
-                destMatch.tag = sourceChild.tag;
-                destMatch.gameObject.layer = sourceChild.gameObject.layer;
                 RecursiveAdditivePaste(sourceChild, destMatch, componentsToVerify, report);
             }
             else {
@@ -115,6 +113,7 @@ public static class TransformHierarchyTools
     static void TransferComponents(Transform source, Transform destination, List<Component> componentsToVerify, StringBuilder report)
     {
         report.AppendLine("\nTransfering components from " + source.name + " to " + destination.name + ".");
+
         var sourceComponents = source.GetComponents<Component>().Where(c => !(c is Transform));
         var destComponents = destination.GetComponents<Component>().Where(c => !(c is Transform)).ToArray();
 
@@ -123,11 +122,11 @@ public static class TransformHierarchyTools
             var destMatch = destComponents.FirstOrDefault(dc => dc.GetType() == componentType);
             if(destMatch == null) {
                 if(!UnityEditorInternal.ComponentUtility.CopyComponent(sc)) {
-                    Debug.Log("Error copying component " + componentType.Name + " from " + sc.name);
+                    Debug.Log("\tError copying component " + componentType.Name + " from " + sc.name);
                     continue;
                 }
                 if(!UnityEditorInternal.ComponentUtility.PasteComponentAsNew(destination.gameObject)) {
-                    Debug.Log("Error pasting component " + componentType.Name + " to " + destination.name);
+                    Debug.Log("\tError pasting component " + componentType.Name + " to " + destination.name);
                     continue;
                 }
 
@@ -141,6 +140,11 @@ public static class TransformHierarchyTools
                 componentsToVerify.Add(newComponent);
             }
         }
+
+        report.AppendLine("\tChanging tag from '" + destination.tag + "' to '" + source.tag + "' and" +
+                          "layer from '" + destination.gameObject.layer + "' to " + source.gameObject.layer + "'.");
+        destination.tag = source.tag;
+        destination.gameObject.layer = source.gameObject.layer;
     }
 
     //We perform this as a separate step at the end of any paste because we only want to
