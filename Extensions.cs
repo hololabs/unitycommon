@@ -26,6 +26,14 @@ public static class Extensions
         }
     }
 
+    public static void Each<T>(this IEnumerable<T> ie, Action<T> action)
+    {
+        foreach(var e in ie) {
+            action(e);
+        }
+    }
+
+
     public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
     {
         if(val.CompareTo(max) > 0) {
