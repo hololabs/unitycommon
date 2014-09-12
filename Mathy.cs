@@ -19,6 +19,11 @@ public static class CurveHelper
 
 public static class Mathy
 {
+    public static float ModMod(this float x, float m)
+    {
+        return (x % m + m) % m;
+    }
+
     public static float Lexp(float from, float to, float t)
     {
         return from + (to - from) * t;

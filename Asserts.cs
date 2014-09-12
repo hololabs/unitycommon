@@ -14,7 +14,7 @@ public static class Assert
     public static void That(Expression<Func<bool>> predicate)
     {
         if(!predicate.Compile().Invoke()) {
-            Debug.Log("Assertion failed!\n" + predicate.Body);
+            Debug.LogError("Assertion failed!\n" + predicate.Body);
             Debug.Break();
         }
     }
