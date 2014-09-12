@@ -55,49 +55,40 @@ public static class Mathy
 
     public static float CubicInterpolate(float y0, float y1, float y2, float y3, float t)
     {
-        float a0, a1, a2, tsq;
-
-        tsq = t * t;
-
-        a0 = y3 - y2 - y0 + y1;
-        a1 = y0 - y1 - a0;
-        a2 = y2 - y0;
+        float a0 = y3 - y2 - y0 + y1;
+        float a1 = y0 - y1 - a0;
+        float a2 = y2 - y0;
+        float tsq = t * t;
 
         return (a0 * t * tsq + a1 * tsq + a2 * t + y1);
     }
 
     public static Vector2 CubicInterpolate(Vector2 y0, Vector2 y1, Vector2 y2, Vector2 y3, float t)
     {
-        Vector2 a0, a1, a2;
+        Vector2 a0 = y3 - y2 - y0 + y1;
+        Vector2 a1 = y0 - y1 - a0;
+        Vector2 a2 = y2 - y0;
         float tsq = t * t;
-
-        a0 = y3 - y2 - y0 + y1;
-        a1 = y0 - y1 - a0;
-        a2 = y2 - y0;
 
         return (a0 * t * tsq + a1 * tsq + a2 * t + y1);
     }
 
     public static Vector2 CatmullRom(Vector2 y0, Vector2 y1, Vector2 y2, Vector2 y3, float t)
     {
-        Vector2 a0, a1, a2;
+        Vector2 a0 = -0.5f * y0 + 1.5f * y1 - 1.5f * y2 + 0.5f * y3;
+        Vector2 a1 = y0 - 2.5f * y1 + 2f * y2 - 0.5f * y3;
+        Vector2 a2 = -0.5f * y0 + 0.5f * y2;
         float tsq = t * t;
-
-        a0 = -0.5f * y0 + 1.5f * y1 - 1.5f * y2 + 0.5f * y3;
-        a1 = y0 - 2.5f * y1 + 2f * y2 - 0.5f * y3;
-        a2 = -0.5f * y0 + 0.5f * y2;
 
         return (a0 * t * tsq + a1 * tsq + a2 * t + y1);
     }
 
     public static Vector2 CatmullTan(Vector2 y0, Vector2 y1, Vector2 y2, Vector2 y3, float t)
     {
-        Vector2 a0, a1, a2;
+        Vector2 a0 = -0.5f * y0 + 1.5f * y1 - 1.5f * y2 + 0.5f * y3;
+        Vector2 a1 = y0 - 2.5f * y1 + 2f * y2 - 0.5f * y3;
+        Vector2 a2 = -0.5f * y0 + 0.5f * y2;
         float tsq = t * t;
-
-        a0 = -0.5f * y0 + 1.5f * y1 - 1.5f * y2 + 0.5f * y3;
-        a1 = y0 - 2.5f * y1 + 2f * y2 - 0.5f * y3;
-        a2 = -0.5f * y0 + 0.5f * y2;
 
         return (3 * a0 * tsq + 2 * a1 * t + a2);
     }
@@ -125,24 +116,17 @@ public static class Mathy
         return new Vector2(Mathf.Sin(rads), Mathf.Cos(rads));
     }
 
-    /*
-	public static Vector3 CatmullRom(
-							Vector3 y0, Vector3 y1,
-							Vector3 y2, Vector3 y3,
-							float t
-						  )
+	public static Vector3 CatmullRom(Vector3 y0, Vector3 y1, Vector3 y2, Vector3 y3, float t)
 	{
-		Vector3 a0, a1, a2, a3;
-		float tsq = t*t;
-		
-		a0 = -0.5f*y0 + 1.5f*y1 - 1.5f*y2 + 0.5f*y3;
-		a1 = y0 - 2.5f*y1 + 2f*y2 - 0.5f*y3;
-		a2 = -0.5f*y0 + 0.5f*y2;
-		a3 = y1;
+	    Vector3 a0 = -0.5f * y0 + 1.5f * y1 - 1.5f * y2 + 0.5f * y3;
+	    Vector3 a1 = y0 - 2.5f * y1 + 2f * y2 - 0.5f * y3;
+	    Vector3 a2 = -0.5f * y0 + 0.5f * y2;
+	    Vector3 a3 = y1;
+	    float tsq = t * t;
 
-		return (a0*t*tsq+a1*tsq+a2*t+a3);
+	    return (a0 * t * tsq + a1 * tsq + a2 * t + a3);
 	}
-	*/
+
     /// <summary>
     /// Determine the signed angle between two vectors, with normal 'n'
     /// as the rotation axis.
