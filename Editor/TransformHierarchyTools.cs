@@ -192,7 +192,7 @@ public static class TransformHierarchyTools
 
                 if(fieldValue.transform.root != sourceRoot) {
                     report.AppendLine("\tIgnoring '" + prop.Name + "', since its root is " + fieldValue.transform.root + " instead of " + sourceRoot);
-                    continue;;
+                    continue;
                 }
 
                 string fieldPath = GetTransformPath(fieldValue);

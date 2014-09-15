@@ -91,7 +91,8 @@ public class Waiter : MonoBehaviour
         Task t = Waiters.taskCache.Take();
         t.Reset(
             waited => waited > durationSeconds,
-            waited => action(waited / durationSeconds));
+            waited => action(waited / durationSeconds)
+        );
 
         taskQueue.Enqueue(t);
 
