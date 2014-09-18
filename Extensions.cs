@@ -5,8 +5,22 @@ using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
+using System.Collections;
+
 public static class Extensions
 {
+    public static int IncrementAndWrap(this IList t, int currentIndex)
+    {
+        int newIndex = currentIndex + 1;
+        return (newIndex >= t.Count) ? 0 : newIndex;
+    }
+
+    public static int DecrementAndWrap(this IList t, int currentIndex)
+    {
+        int newIndex = currentIndex - 1;
+        return (newIndex < 0) ? t.Count - 1 : newIndex;
+    }
+
     public static T RandomInRange<T>(this IList<T> t)
     {
         if(t.Count == 0) {
