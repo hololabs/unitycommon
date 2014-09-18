@@ -291,7 +291,7 @@ public static class TransformHierarchyTools
         return componentDidChange;
     }
 
-    static string GetTransformPath(Component c)
+    public static string GetTransformPath(Component c)
     {
         var sb = new StringBuilder();
 
