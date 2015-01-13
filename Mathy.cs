@@ -98,6 +98,15 @@ public static class Mathy
         return (3 * a0 * tsq + 2 * a1 * t + a2);
     }
 
+    public static Vector2 CubicBezier(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float t)
+    {
+        float i = 1f - t;
+        return i * i * i * p0 +
+               3 * i * i * t * p1 +
+               3 * i * t * t * p2 +
+               t * t * t * p3;
+    }
+
     public static float DirectionalDeltaAngle(float x, float y)
     {
         if(x < 0f) {
