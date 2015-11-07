@@ -6,10 +6,12 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 using System.Linq;
+using JetBrains.Annotations;
 
 public static partial class EnumerableExtensions
 {
     //From https://stackoverflow.com/questions/1287567/is-using-random-and-orderby-a-good-shuffle-algorithm
+    [Pure]
     public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source)
     {
         T[] elements = source.ToArray();
@@ -25,5 +27,39 @@ public static partial class EnumerableExtensions
 
         // there is one item remaining that was not returned - we return it now
         yield return elements[0];
+    }
+
+    //From http://stackoverflow.com/a/24016130
+    [Pure]
+    public static IEnumerable<int> IndexOfAll(this string s, char c)
+    {
+        int startIndex = s.IndexOf(c);
+        while(startIndex != -1) {
+            yield return startIndex;
+            startIndex = s.IndexOf(c, startIndex + 1);
+        }
+    }
+
+    [Pure]
+    public static string Log<T>(this IEnumerable<T> ie, string delimiter)
+    {
+        return ie.Aggregate("", (s, i) => s + i + delimiter);
+    }
+
+    // Handy utility functions for iteration with  or without index, from
+    // http://stackoverflow.com/questions/521687/c-sharp-foreach-with-index
+    public static void Each<T>(this IEnumerable<T> ie, Action<T, int> action)
+    {
+        int i = 0;
+        foreach(var e in ie) {
+            action(e, i++);
+        }
+    }
+
+    public static void Each<T>(this IEnumerable<T> ie, Action<T> action)
+    {
+        foreach(var e in ie) {
+            action(e);
+        }
     }
 }

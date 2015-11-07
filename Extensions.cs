@@ -6,48 +6,35 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 using System.Collections;
+using JetBrains.Annotations;
 
 public static class Extensions
 {
+    [Pure]
     public static int IncrementAndWrap(this IList t, int currentIndex)
     {
         int newIndex = currentIndex + 1;
         return (newIndex >= t.Count) ? 0 : newIndex;
     }
 
+    [Pure]
     public static int DecrementAndWrap(this IList t, int currentIndex)
     {
         int newIndex = currentIndex - 1;
         return (newIndex < 0) ? t.Count - 1 : newIndex;
     }
 
+    [Pure]
     public static T RandomInRange<T>(this IList<T> t)
     {
         if(t.Count == 0) {
-            Debug.LogError("Range is zero!");
+            Debug.LogError("Cannot return random value: list is empty!");
             return default(T);
         }
         return t[Random.Range(0, t.Count)];
     }
 
-    // Handy utility function for iteration with index, from
-    // http://stackoverflow.com/questions/521687/c-sharp-foreach-with-index
-    public static void Each<T>(this IEnumerable<T> ie, Action<T, int> action)
-    {
-        int i = 0;
-        foreach(var e in ie) {
-            action(e, i++);
-        }
-    }
-
-    public static void Each<T>(this IEnumerable<T> ie, Action<T> action)
-    {
-        foreach(var e in ie) {
-            action(e);
-        }
-    }
-
-
+    [Pure]
     public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
     {
         if(val.CompareTo(max) > 0) {
@@ -57,5 +44,13 @@ public static class Extensions
             return min;
         }
         return val;
+    }
+
+    /// Retrieves a substring from this instance. The string starts at [startIndex]
+    /// and ends at [endIndex - 1].
+    [Pure]
+    public static string Substr(this string s, int startIndex, int endIndex)
+    {
+        return s.Substring(startIndex, endIndex - startIndex);
     }
 }
