@@ -43,7 +43,7 @@ public static partial class EnumerableExtensions
     [Pure]
     public static string Log<T>(this IEnumerable<T> ie, string delimiter)
     {
-        return ie.FirstOrDefault() + ie.Skip(1).Aggregate("", (s, i) => delimiter + s + i);
+        return ie.FirstOrDefault() + ie.Skip(1).Aggregate("", (s, i) => s + delimiter + i);
     }
 
     // Handy utility functions for iteration with or without index, from
