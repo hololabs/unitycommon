@@ -43,10 +43,10 @@ public static partial class EnumerableExtensions
     [Pure]
     public static string Log<T>(this IEnumerable<T> ie, string delimiter)
     {
-        return ie.Aggregate("", (s, i) => s + i + delimiter);
+        return ie.FirstOrDefault() + ie.Skip(1).Aggregate("", (s, i) => delimiter + s + i);
     }
 
-    // Handy utility functions for iteration with  or without index, from
+    // Handy utility functions for iteration with or without index, from
     // http://stackoverflow.com/questions/521687/c-sharp-foreach-with-index
     public static void Each<T>(this IEnumerable<T> ie, Action<T, int> action)
     {
