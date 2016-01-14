@@ -53,4 +53,10 @@ public static class Extensions
     {
         return s.Substring(startIndex, endIndex - startIndex);
     }
+
+    [Pure]
+    public static Color Invert(this Color c)
+    {
+        return new Color(1f - c.r, 1f - c.g, 1f - c.b, c.a);
+    }
 }
