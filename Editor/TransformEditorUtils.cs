@@ -37,7 +37,7 @@ public class TransformEditorUtils : Editor
     {
         current = Event.current;
 
-        if(!current.isKey || current.type != EventType.keyDown) {
+        if(!current.isKey || current.type != EventType.KeyDown) {
             return;
         }
 
